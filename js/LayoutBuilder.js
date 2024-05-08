@@ -410,8 +410,10 @@ class LayoutBuilder {
       //TODO: paragraph gap
     }, this);
     // begin - Vertical alignment
-    const lastNode = this.__nodesHierarchy.pop();
-    this.__nodesHierarchy.length > 0 && (this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight);
+    if (this.__nodesHierarchy.length > 1) {
+      const lastNode = this.__nodesHierarchy.pop();
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   }
 
@@ -443,9 +445,11 @@ class LayoutBuilder {
       return gaps;
     }
     // begin - Vertical alignment
-    const lastNode = this.__nodesHierarchy.pop();
-    lastNode.__contentHeight = Math.max(...columns.map(c => c.__contentHeight));
-    this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    if (this.__nodesHierarchy.length > 1) {
+      const lastNode = this.__nodesHierarchy.pop();
+      lastNode.__contentHeight = Math.max(...columns.map(c => c.__contentHeight));
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   }
   processRow(columns, widths, gaps, tableBody, tableRow, height) {
@@ -565,8 +569,10 @@ class LayoutBuilder {
     this.writer.removeListener('lineAdded', addMarkerToFirstLeaf);
     this.writer.context().addMargin(-gapSize.width);
     // begin - Vertical alignment
-    const lastNode = this.__nodesHierarchy.pop();
-    this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    if (this.__nodesHierarchy.length > 1) {
+      const lastNode = this.__nodesHierarchy.pop();
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   }
 

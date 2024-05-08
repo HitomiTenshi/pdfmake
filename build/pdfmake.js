@@ -43,7 +43,7 @@ var web_dom_collections_for_each = __webpack_require__(2437);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.to-string.js
 var es_regexp_to_string = __webpack_require__(7114);
 // EXTERNAL MODULE: ./node_modules/@foliojs-fork/pdfkit/js/pdfkit.es5.js
-var pdfkit_es5 = __webpack_require__(6659);
+var pdfkit_es5 = __webpack_require__(3893);
 ;// CONCATENATED MODULE: ./src/PDFDocument.js
 /* provided dependency */ var Buffer = __webpack_require__(4598)["Buffer"];
 
@@ -4830,8 +4830,10 @@ var LayoutBuilder = /*#__PURE__*/function () {
       //TODO: paragraph gap
     }, this);
     // begin - Vertical alignment
-    var lastNode = this.__nodesHierarchy.pop();
-    this.__nodesHierarchy.length > 0 && (this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight);
+    if (this.__nodesHierarchy.length > 1) {
+      var lastNode = this.__nodesHierarchy.pop();
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   }
 
@@ -4864,11 +4866,13 @@ var LayoutBuilder = /*#__PURE__*/function () {
       return gaps;
     }
     // begin - Vertical alignment
-    var lastNode = this.__nodesHierarchy.pop();
-    lastNode.__contentHeight = Math.max.apply(Math, columns.map(function (c) {
-      return c.__contentHeight;
-    }));
-    this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    if (this.__nodesHierarchy.length > 1) {
+      var lastNode = this.__nodesHierarchy.pop();
+      lastNode.__contentHeight = Math.max.apply(Math, columns.map(function (c) {
+        return c.__contentHeight;
+      }));
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   };
   _proto.processRow = function processRow(columns, widths, gaps, tableBody, tableRow, height) {
@@ -4990,8 +4994,10 @@ var LayoutBuilder = /*#__PURE__*/function () {
     this.writer.removeListener('lineAdded', addMarkerToFirstLeaf);
     this.writer.context().addMargin(-gapSize.width);
     // begin - Vertical alignment
-    var lastNode = this.__nodesHierarchy.pop();
-    this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    if (this.__nodesHierarchy.length > 1) {
+      var lastNode = this.__nodesHierarchy.pop();
+      this.__nodesHierarchy[this.__nodesHierarchy.length - 1].__contentHeight += lastNode.__contentHeight;
+    }
     // end - Vertical alignment
   }
 
@@ -6376,7 +6382,7 @@ var OutputDocument = /*#__PURE__*/function () {
 }();
 /* harmony default export */ var src_OutputDocument = (OutputDocument);
 // EXTERNAL MODULE: ./node_modules/file-saver/dist/FileSaver.min.js
-var FileSaver_min = __webpack_require__(576);
+var FileSaver_min = __webpack_require__(3035);
 ;// CONCATENATED MODULE: ./src/browser-extensions/OutputDocumentBrowser.js
 
 
@@ -21903,7 +21909,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6659:
+/***/ 3893:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -62552,7 +62558,7 @@ module.exports = __webpack_require__(5349);
 
 /***/ }),
 
-/***/ 576:
+/***/ 3035:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(a,b){if(true)!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (b),
