@@ -43,7 +43,7 @@ var web_dom_collections_for_each = __webpack_require__(2437);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.to-string.js
 var es_regexp_to_string = __webpack_require__(7114);
 // EXTERNAL MODULE: ./node_modules/@foliojs-fork/pdfkit/js/pdfkit.es5.js
-var pdfkit_es5 = __webpack_require__(2282);
+var pdfkit_es5 = __webpack_require__(6659);
 ;// CONCATENATED MODULE: ./src/PDFDocument.js
 /* provided dependency */ var Buffer = __webpack_require__(4598)["Buffer"];
 
@@ -64,7 +64,6 @@ var typeName = function typeName(bold, italics) {
   return type;
 };
 var PDFDocument = /*#__PURE__*/function (_PDFKit) {
-  _inheritsLoose(PDFDocument, _PDFKit);
   function PDFDocument(fonts, images, patterns, attachments, options, virtualfs) {
     var _this;
     if (fonts === void 0) {
@@ -111,6 +110,7 @@ var PDFDocument = /*#__PURE__*/function (_PDFKit) {
     _this.virtualfs = virtualfs;
     return _this;
   }
+  _inheritsLoose(PDFDocument, _PDFKit);
   var _proto = PDFDocument.prototype;
   _proto.getFontType = function getFontType(bold, italics) {
     return typeName(bold, italics);
@@ -295,7 +295,7 @@ var es_symbol_iterator = __webpack_require__(9330);
 
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 
 function fontStringify(key, val) {
   if (key === 'font') {
@@ -411,25 +411,7 @@ var convertValueToString = function convertValueToString(value) {
   return value;
 };
 var DocPreprocessor = /*#__PURE__*/function () {
-  function DocPreprocessor() {
-    this.checkNode = function (node) {
-      // expand shortcuts and casting values
-      if (Array.isArray(node)) {
-        node = {
-          stack: node
-        };
-      } else if (isString(node) || isNumber(node) || typeof node === 'boolean' || !isValue(node) || isEmptyObject(node)) {
-        // text node defined as value
-        node = {
-          text: convertValueToString(node)
-        };
-      } else if ('text' in node) {
-        // cast value in text property
-        node.text = convertValueToString(node.text);
-      }
-      return node;
-    };
-  }
+  function DocPreprocessor() {}
   var _proto = DocPreprocessor.prototype;
   _proto.preprocessDocument = function preprocessDocument(docStructure) {
     this.parentNode = null;
@@ -440,6 +422,23 @@ var DocPreprocessor = /*#__PURE__*/function () {
 
   // begin - Vertical alignment
   ;
+  _proto.checkNode = function checkNode(node) {
+    // expand shortcuts and casting values
+    if (Array.isArray(node)) {
+      node = {
+        stack: node
+      };
+    } else if (isString(node) || isNumber(node) || typeof node === 'boolean' || !isValue(node) || isEmptyObject(node)) {
+      // text node defined as value
+      node = {
+        text: convertValueToString(node)
+      };
+    } else if ('text' in node) {
+      // cast value in text property
+      node.text = convertValueToString(node.text);
+    }
+    return node;
+  };
   // end - Vertical alignment
   _proto.preprocessNode = function preprocessNode(node) {
     // begin - Vertical alignment
@@ -1729,9 +1728,7 @@ var encode = function encode(ver, mode, data, maxbuflen) {
   var pack = function pack(x, n) {
     if (n >= remaining) {
       buf.push(bits | x >> (n -= remaining));
-      while (n >= 8) {
-        buf.push(x >> (n -= 8) & 255);
-      }
+      while (n >= 8) buf.push(x >> (n -= 8) & 255);
       bits = 0;
       remaining = 8;
     }
@@ -1771,9 +1768,7 @@ var encode = function encode(ver, mode, data, maxbuflen) {
 
   // the padding to fill up the remaining space. we should not add any
   // words when the overflow already occurred.
-  while (buf.length + 1 < maxbuflen) {
-    buf.push(0xec, 0x11);
-  }
+  while (buf.length + 1 < maxbuflen) buf.push(0xec, 0x11);
   if (buf.length < maxbuflen) buf.push(0xec);
   return buf;
 };
@@ -1789,9 +1784,7 @@ var calculateecc = function calculateecc(poly, genpoly) {
   var modulus = poly.slice(0);
   var polylen = poly.length,
     genpolylen = genpoly.length;
-  for (var i = 0; i < genpolylen; ++i) {
-    modulus.push(0);
-  }
+  for (var i = 0; i < genpolylen; ++i) modulus.push(0);
   for (var i = 0; i < polylen;) {
     var quotient = GF256_INVMAP[modulus[i++]];
     if (quotient >= 0) {
@@ -2029,13 +2022,9 @@ var evaluatematrix = function evaluatematrix(matrix) {
     groups = [0]; // the first empty group of white
     for (var j = 0; j < n;) {
       var k;
-      for (k = 0; j < n && row[j]; ++k) {
-        ++j;
-      }
+      for (k = 0; j < n && row[j]; ++k) ++j;
       groups.push(k);
-      for (k = 0; j < n && !row[j]; ++k) {
-        ++j;
-      }
+      for (k = 0; j < n && !row[j]; ++k) ++j;
       groups.push(k);
     }
     score += evaluategroup(groups);
@@ -2044,13 +2033,9 @@ var evaluatematrix = function evaluatematrix(matrix) {
     groups = [0];
     for (var j = 0; j < n;) {
       var k;
-      for (k = 0; j < n && matrix[j][i]; ++k) {
-        ++j;
-      }
+      for (k = 0; j < n && matrix[j][i]; ++k) ++j;
       groups.push(k);
-      for (k = 0; j < n && !matrix[j][i]; ++k) {
-        ++j;
-      }
+      for (k = 0; j < n && !matrix[j][i]; ++k) ++j;
       groups.push(k);
     }
     score += evaluategroup(groups);
@@ -2862,7 +2847,6 @@ function DocumentContext_setPrototypeOf(o, p) { DocumentContext_setPrototypeOf =
  * It facilitates column divisions and vertical sync
  */
 var DocumentContext = /*#__PURE__*/function (_EventEmitter) {
-  DocumentContext_inheritsLoose(DocumentContext, _EventEmitter);
   function DocumentContext(pageSize, pageMargins) {
     var _this;
     _this = _EventEmitter.call(this) || this;
@@ -2878,6 +2862,7 @@ var DocumentContext = /*#__PURE__*/function (_EventEmitter) {
     _this.addPage(pageSize);
     return _this;
   }
+  DocumentContext_inheritsLoose(DocumentContext, _EventEmitter);
   var _proto = DocumentContext.prototype;
   _proto.beginColumnGroup = function beginColumnGroup() {
     this.snapshots.push({
@@ -3139,7 +3124,6 @@ function ElementWriter_setPrototypeOf(o, p) { ElementWriter_setPrototypeOf = Obj
  * their positions based on the context
  */
 var ElementWriter = /*#__PURE__*/function (_EventEmitter) {
-  ElementWriter_inheritsLoose(ElementWriter, _EventEmitter);
   function ElementWriter(context) {
     var _this;
     _this = _EventEmitter.call(this) || this;
@@ -3147,6 +3131,7 @@ var ElementWriter = /*#__PURE__*/function (_EventEmitter) {
     _this.contextStack = [];
     return _this;
   }
+  ElementWriter_inheritsLoose(ElementWriter, _EventEmitter);
   var _proto = ElementWriter.prototype;
   _proto.context = function context() {
     return this._context;
@@ -3485,7 +3470,6 @@ function PageElementWriter_setPrototypeOf(o, p) { PageElementWriter_setPrototype
  *                 whole block will be rendered on the same page)
  */
 var PageElementWriter = /*#__PURE__*/function (_ElementWriter) {
-  PageElementWriter_inheritsLoose(PageElementWriter, _ElementWriter);
   function PageElementWriter(context) {
     var _this;
     _this = _ElementWriter.call(this, context) || this;
@@ -3493,6 +3477,7 @@ var PageElementWriter = /*#__PURE__*/function (_ElementWriter) {
     _this.repeatables = [];
     return _this;
   }
+  PageElementWriter_inheritsLoose(PageElementWriter, _ElementWriter);
   var _proto = PageElementWriter.prototype;
   _proto.addLine = function addLine(line, dontUpdateContextPosition, index) {
     var _this2 = this;
@@ -3637,13 +3622,13 @@ var PageElementWriter = /*#__PURE__*/function (_ElementWriter) {
 }(src_ElementWriter);
 /* harmony default export */ var src_PageElementWriter = (PageElementWriter);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.flat.js
-var es_array_flat = __webpack_require__(4944);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.unscopables.flat.js
-var es_array_unscopables_flat = __webpack_require__(3792);
+var es_array_flat = __webpack_require__(602);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.flat-map.js
-var es_array_flat_map = __webpack_require__(6535);
+var es_array_flat_map = __webpack_require__(7373);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.unscopables.flat.js
+var es_array_unscopables_flat = __webpack_require__(6777);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.unscopables.flat-map.js
-var es_array_unscopables_flat_map = __webpack_require__(9244);
+var es_array_unscopables_flat_map = __webpack_require__(4182);
 ;// CONCATENATED MODULE: ./src/TableProcessor.js
 
 
@@ -3662,22 +3647,6 @@ var es_array_unscopables_flat_map = __webpack_require__(9244);
 // end - Vertical alignment
 var TableProcessor = /*#__PURE__*/function () {
   function TableProcessor(tableNode) {
-    this.getCellContentHeight = function (cell, items) {
-      var contentHeight = 0;
-      cell._maxHeight && (contentHeight = cell._maxHeight); // for canvas
-      // for forced multiline text, text with lineHeight, ul, ol
-      cell.__contentHeight && (contentHeight = cell.__contentHeight);
-      !contentHeight && (contentHeight = items.reduce(function (p, v) {
-        var _v$item$inlines$, _v$item$__nodeRef$lin, _v$item$__nodeRef, _v$item$_height, _item$height, _item$h;
-        var item = v.item.inlines ? (_v$item$inlines$ = v.item.inlines[0]) != null ? _v$item$inlines$ : null : v.item;
-        var lineHeight = (_v$item$__nodeRef$lin = (_v$item$__nodeRef = v.item.__nodeRef) == null ? void 0 : _v$item$__nodeRef.lineHeight) != null ? _v$item$__nodeRef$lin : (_v$item$_height = v.item._height) != null ? _v$item$_height : v.item.h;
-        var height = (_item$height = item.height) != null ? _item$height : (_item$h = item.h) != null ? _item$h : 0;
-        v.type === 'vector' || cell.ol && !v.item.lastLineInParagraph && (height = 0); // for ol with counter
-        return p + height / (lineHeight != null ? lineHeight : 1);
-      }, 0));
-      !contentHeight && cell._height && (contentHeight = cell._height); // for text, image, svg, qr
-      return contentHeight;
-    };
     this.processTableVerticalAlignment = function (writer, tableProcessor, table) {
       var _this = this;
       var getCells = function getCells(node) {
@@ -3691,7 +3660,7 @@ var TableProcessor = /*#__PURE__*/function () {
         // filter only cells with vertical alignment (middle / bottom)
         !Array.isArray(row) && row.columns && (row = row.columns);
         row.filter(function (cell) {
-          return cell.verticalAlign && ['middle', 'bottom'].indexOf(cell.verticalAlign) > -1;
+          return cell.verticalAlign && ["middle", "bottom"].indexOf(cell.verticalAlign) > -1;
         }).forEach(function (cell) {
           var nestedTables;
           if (!cell._span) {
@@ -3743,7 +3712,7 @@ var TableProcessor = /*#__PURE__*/function () {
                 itemHeight = _this.getCellContentHeight(cell, items);
               }
               items.forEach(function (x) {
-                var offsetTop = cell.verticalAlign === 'bottom' ? cellHeight - itemHeight - 3 : (cellHeight - itemHeight) / 2;
+                var offsetTop = cell.verticalAlign === "bottom" ? cellHeight - itemHeight - 3 : (cellHeight - itemHeight) / 2;
                 if (x && x.item) {
                   var paddingTop = tableProcessor.layout.paddingTop(rowIndex, _this.tableNode);
                   x.item.type && offsetVector(x.item, 0, Math.max(0, offsetTop) - paddingTop);
@@ -3880,7 +3849,7 @@ var TableProcessor = /*#__PURE__*/function () {
     this.bottomLineWidth = this.layout.hLineWidth(rowIndex + 1, this.tableNode);
     this.rowPaddingBottom = this.layout.paddingBottom(rowIndex, this.tableNode);
     this.rowCallback = this.onRowBreak(rowIndex, writer);
-    writer.addListener('pageChanged', this.rowCallback);
+    writer.addListener("pageChanged", this.rowCallback);
     if (this.dontBreakRows) {
       writer.beginUnbreakableBlock();
     }
@@ -3948,7 +3917,7 @@ var TableProcessor = /*#__PURE__*/function () {
           }
         }
         if (borderColor == null) {
-          borderColor = typeof this.layout.hLineColor === 'function' ? this.layout.hLineColor(lineIndex, this.tableNode, i) : this.layout.hLineColor;
+          borderColor = typeof this.layout.hLineColor === "function" ? this.layout.hLineColor(lineIndex, this.tableNode, i) : this.layout.hLineColor;
         }
         if (!currentLine && shouldDrawLine) {
           currentLine = {
@@ -3981,16 +3950,15 @@ var TableProcessor = /*#__PURE__*/function () {
         if (shouldDrawLine) {
           if (currentLine && currentLine.width) {
             writer.addVector({
-              type: 'line',
+              type: "line",
               x1: currentLine.left,
               x2: currentLine.left + currentLine.width,
               y1: y,
               y2: y,
               lineWidth: lineWidth,
               dash: dash,
-              lineColor: borderColor
+              lineColor: borderColor,
               // begin - Vertical alignment
-              ,
               __tableRef: this.tableNode.table
               // end - Vertical alignment
             }, false, overrideY);
@@ -4056,19 +4024,18 @@ var TableProcessor = /*#__PURE__*/function () {
       }
     }
     if (borderColor == null) {
-      borderColor = typeof this.layout.vLineColor === 'function' ? this.layout.vLineColor(vLineColIndex, this.tableNode, vLineRowIndex) : this.layout.vLineColor;
+      borderColor = typeof this.layout.vLineColor === "function" ? this.layout.vLineColor(vLineColIndex, this.tableNode, vLineRowIndex) : this.layout.vLineColor;
     }
     writer.addVector({
-      type: 'line',
+      type: "line",
       x1: x + width / 2,
       x2: x + width / 2,
       y1: y0,
       y2: y1,
       lineWidth: width,
       dash: dash,
-      lineColor: borderColor
+      lineColor: borderColor,
       // begin - Vertical alignment
-      ,
       __tableRef: this.tableNode.table
       // end - Vertical alignment
     }, false, true);
@@ -4079,6 +4046,22 @@ var TableProcessor = /*#__PURE__*/function () {
 
   // begin - Vertical alignment
   ;
+  _proto.getCellContentHeight = function getCellContentHeight(cell, items) {
+    var contentHeight = 0;
+    cell._maxHeight && (contentHeight = cell._maxHeight); // for canvas
+    // for forced multiline text, text with lineHeight, ul, ol
+    !cell.lineHeight && cell.__contentHeight && (contentHeight = cell.__contentHeight);
+    !contentHeight && (contentHeight = items.reduce(function (p, v) {
+      var _v$item$inlines$, _ref, _v$item$__nodeRef$lin, _v$item$__nodeRef, _ref2, _item$height;
+      var item = v.item.inlines ? (_v$item$inlines$ = v.item.inlines[0]) != null ? _v$item$inlines$ : null : v.item;
+      var lineHeight = (_ref = (_v$item$__nodeRef$lin = (_v$item$__nodeRef = v.item.__nodeRef) == null ? void 0 : _v$item$__nodeRef.lineHeight) != null ? _v$item$__nodeRef$lin : v.item._height) != null ? _ref : v.item.h;
+      var height = (_ref2 = (_item$height = item.height) != null ? _item$height : item.h) != null ? _ref2 : 0;
+      v.type === "vector" || cell.ol && !v.item.lastLineInParagraph && (height = 0); // for ol with counter
+      return p + height / (lineHeight != null ? lineHeight : 1);
+    }, 0));
+    !contentHeight && cell._height && (contentHeight = cell._height); // for text, image, svg, qr
+    return contentHeight;
+  };
   // end - Vertical alignment
   _proto.endTable = function endTable(writer) {
     // begin - Vertical alignment
@@ -4113,7 +4096,7 @@ var TableProcessor = /*#__PURE__*/function () {
       });
       return result;
     };
-    writer.removeListener('pageChanged', this.rowCallback);
+    writer.removeListener("pageChanged", this.rowCallback);
     writer.context().moveDown(this.layout.paddingBottom(rowIndex, this.tableNode));
     writer.context().availableHeight += this.reservedAtBottom;
     var endingPage = writer.context().page;
@@ -4184,10 +4167,10 @@ var TableProcessor = /*#__PURE__*/function () {
           var fillColor = body[rowIndex][colIndex].fillColor;
           var fillOpacity = body[rowIndex][colIndex].fillOpacity;
           if (!fillColor) {
-            fillColor = typeof this.layout.fillColor === 'function' ? this.layout.fillColor(rowIndex, this.tableNode, colIndex) : this.layout.fillColor;
+            fillColor = typeof this.layout.fillColor === "function" ? this.layout.fillColor(rowIndex, this.tableNode, colIndex) : this.layout.fillColor;
           }
           if (!isNumber(fillOpacity)) {
-            fillOpacity = typeof this.layout.fillOpacity === 'function' ? this.layout.fillOpacity(rowIndex, this.tableNode, colIndex) : this.layout.fillOpacity;
+            fillOpacity = typeof this.layout.fillOpacity === "function" ? this.layout.fillOpacity(rowIndex, this.tableNode, colIndex) : this.layout.fillOpacity;
           }
           var overlayPattern = body[rowIndex][colIndex].overlayPattern;
           var overlayOpacity = body[rowIndex][colIndex].overlayOpacity;
@@ -4209,7 +4192,7 @@ var TableProcessor = /*#__PURE__*/function () {
             var bgHeight = y2f - y1f;
             if (fillColor) {
               writer.addVector({
-                type: 'rect',
+                type: "rect",
                 x: x1f,
                 y: y1f,
                 w: bgWidth,
@@ -4221,7 +4204,7 @@ var TableProcessor = /*#__PURE__*/function () {
             }
             if (overlayPattern) {
               writer.addVector({
-                type: 'rect',
+                type: "rect",
                 x: x1f,
                 y: y1f,
                 w: bgWidth,
@@ -4276,9 +4259,9 @@ var TableProcessor = /*#__PURE__*/function () {
           _this4.drawHorizontalLine(rowIndex, writer);
         }
       };
-      writer.addListener('pageChanged', pageChangedCallback);
+      writer.addListener("pageChanged", pageChangedCallback);
       writer.commitUnbreakableBlock();
-      writer.removeListener('pageChanged', pageChangedCallback);
+      writer.removeListener("pageChanged", pageChangedCallback);
     }
     if (this.headerRepeatable && (rowIndex === this.rowsWithoutPageBreak - 1 || rowIndex === this.tableNode.table.body.length - 1)) {
       writer.commitUnbreakableBlock();
@@ -6305,6 +6288,8 @@ var pdfmake = /*#__PURE__*/function () {
 /* harmony default export */ var base = (pdfmake);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/web.url.js
 var web_url = __webpack_require__(5111);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/web.url.to-json.js
+var web_url_to_json = __webpack_require__(1863);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.js
 var web_url_search_params = __webpack_require__(7027);
 ;// CONCATENATED MODULE: ./src/OutputDocument.js
@@ -6391,8 +6376,9 @@ var OutputDocument = /*#__PURE__*/function () {
 }();
 /* harmony default export */ var src_OutputDocument = (OutputDocument);
 // EXTERNAL MODULE: ./node_modules/file-saver/dist/FileSaver.min.js
-var FileSaver_min = __webpack_require__(14);
+var FileSaver_min = __webpack_require__(576);
 ;// CONCATENATED MODULE: ./src/browser-extensions/OutputDocumentBrowser.js
+
 
 
 
@@ -6418,10 +6404,10 @@ var openWindow = function openWindow() {
   return win;
 };
 var OutputDocumentBrowser = /*#__PURE__*/function (_OutputDocument) {
-  OutputDocumentBrowser_inheritsLoose(OutputDocumentBrowser, _OutputDocument);
   function OutputDocumentBrowser() {
     return _OutputDocument.apply(this, arguments) || this;
   }
+  OutputDocumentBrowser_inheritsLoose(OutputDocumentBrowser, _OutputDocument);
   var _proto = OutputDocumentBrowser.prototype;
   /**
    * @returns {Promise<Blob>}
@@ -6654,7 +6640,6 @@ var defaultClientFonts = {
   }
 };
 var browser_extensions_pdfmake = /*#__PURE__*/function (_pdfmakeBase) {
-  browser_extensions_inheritsLoose(pdfmake, _pdfmakeBase);
   function pdfmake() {
     var _this;
     _this = _pdfmakeBase.call(this) || this;
@@ -6662,6 +6647,7 @@ var browser_extensions_pdfmake = /*#__PURE__*/function (_pdfmakeBase) {
     _this.fonts = defaultClientFonts;
     return _this;
   }
+  browser_extensions_inheritsLoose(pdfmake, _pdfmakeBase);
   var _proto = pdfmake.prototype;
   _proto.addFontContainer = function addFontContainer(fontContainer) {
     this.addVirtualFileSystem(fontContainer.vfs);
@@ -10976,7 +10962,6 @@ try {
   iconv = __webpack_require__(4171);
 } catch (error) {}
 var EncodeStream = /*#__PURE__*/function (_stream$Readable) {
-  _inheritsLoose(EncodeStream, _stream$Readable);
   function EncodeStream(bufferSize) {
     var _this;
     if (bufferSize === void 0) {
@@ -10990,6 +10975,7 @@ var EncodeStream = /*#__PURE__*/function (_stream$Readable) {
   }
 
   // do nothing, required by node
+  _inheritsLoose(EncodeStream, _stream$Readable);
   var _proto = EncodeStream.prototype;
   _proto._read = function _read() {};
   _proto.ensure = function ensure(bytes) {
@@ -11152,10 +11138,10 @@ var utils = __webpack_require__(8128);
 var _require2 = __webpack_require__(7187),
   _inspect = _require2.inspect;
 var LazyArrayT = /*#__PURE__*/function (_ArrayT) {
-  _inheritsLoose(LazyArrayT, _ArrayT);
   function LazyArrayT() {
     return _ArrayT.apply(this, arguments) || this;
   }
+  _inheritsLoose(LazyArrayT, _ArrayT);
   var _proto = LazyArrayT.prototype;
   _proto.decode = function decode(stream, parent) {
     var pos = stream.pos;
@@ -11277,7 +11263,6 @@ exports.floatle = new NumberT('Float', 'LE');
 exports.doublebe = exports.double = new NumberT('Double', 'BE');
 exports.doublele = new NumberT('Double', 'LE');
 var Fixed = /*#__PURE__*/function (_NumberT) {
-  _inheritsLoose(Fixed, _NumberT);
   function Fixed(size, endian, fracBits) {
     var _this;
     if (fracBits === void 0) {
@@ -11287,6 +11272,7 @@ var Fixed = /*#__PURE__*/function (_NumberT) {
     _this._point = 1 << fracBits;
     return _this;
   }
+  _inheritsLoose(Fixed, _NumberT);
   var _proto2 = Fixed.prototype;
   _proto2.decode = function decode(stream) {
     return _NumberT.prototype.decode.call(this, stream) / this._point;
@@ -11786,7 +11772,6 @@ var getPath = function getPath(object, pathArray) {
   }, object);
 };
 var VersionedStruct = /*#__PURE__*/function (_Struct) {
-  _inheritsLoose(VersionedStruct, _Struct);
   function VersionedStruct(type, versions) {
     var _this;
     if (versions === void 0) {
@@ -11800,6 +11785,7 @@ var VersionedStruct = /*#__PURE__*/function (_Struct) {
     }
     return _this;
   }
+  _inheritsLoose(VersionedStruct, _Struct);
   var _proto = VersionedStruct.prototype;
   _proto.decode = function decode(stream, parent, length) {
     if (length === void 0) {
@@ -12007,12 +11993,10 @@ __webpack_require__(4538);
 __webpack_require__(4793);
 __webpack_require__(4202);
 __webpack_require__(2529);
-__webpack_require__(1863);
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 var base64 = __webpack_require__(2504);
@@ -13501,12 +13485,11 @@ Buffer.prototype.fill = function fill(val, start, end, encoding) {
 var errors = {};
 function E(sym, getMessage, Base) {
   errors[sym] = /*#__PURE__*/function (_Base) {
-    _inheritsLoose(NodeError, _Base);
     function NodeError() {
       var _this;
       _this = _Base.call(this) || this;
-      Object.defineProperty(_assertThisInitialized(_this), 'message', {
-        value: getMessage.apply(_assertThisInitialized(_this), arguments),
+      Object.defineProperty(_this, 'message', {
+        value: getMessage.apply(_this, arguments),
         writable: true,
         configurable: true
       });
@@ -13520,11 +13503,12 @@ function E(sym, getMessage, Base) {
       delete _this.name;
       return _this;
     }
+    _inheritsLoose(NodeError, _Base);
     var _proto = NodeError.prototype;
     _proto.toString = function toString() {
       return this.name + " [" + sym + "]: " + this.message;
     };
-    _createClass(NodeError, [{
+    return _createClass(NodeError, [{
       key: "code",
       get: function get() {
         return sym;
@@ -13538,7 +13522,6 @@ function E(sym, getMessage, Base) {
         });
       }
     }]);
-    return NodeError;
   }(Base);
 }
 E('ERR_BUFFER_OUT_OF_BOUNDS', function (name) {
@@ -13923,10 +13906,8 @@ if (DESCRIPTORS && !hasOwn(TypedArrayPrototype, TO_STRING_TAG)) {
       return isObject(this) ? this[TYPED_ARRAY_TAG] : undefined;
     }
   });
-  for (NAME in TypedArrayConstructorsList) {
-    if (global[NAME]) {
-      createNonEnumerableProperty(global[NAME], TYPED_ARRAY_TAG, NAME);
-    }
+  for (NAME in TypedArrayConstructorsList) if (global[NAME]) {
+    createNonEnumerableProperty(global[NAME], TYPED_ARRAY_TAG, NAME);
   }
 }
 module.exports = {
@@ -14035,9 +14016,7 @@ var set = function set(view, count, index, conversion, value, isLittleEndian) {
   var bytes = getInternalState(store.buffer).bytes;
   var start = intIndex + store.byteOffset;
   var pack = conversion(+value);
-  for (var i = 0; i < count; i++) {
-    bytes[start + i] = pack[isLittleEndian ? i : count - i - 1];
-  }
+  for (var i = 0; i < count; i++) bytes[start + i] = pack[isLittleEndian ? i : count - i - 1];
 };
 if (!NATIVE_ARRAY_BUFFER) {
   $ArrayBuffer = function ArrayBuffer(length) {
@@ -20769,6 +20748,8 @@ __webpack_require__(731);
 "use strict";
 
 
+__webpack_require__(5292);
+__webpack_require__(3844);
 __webpack_require__(5877);
 __webpack_require__(8178);
 __webpack_require__(1765);
@@ -20779,8 +20760,6 @@ __webpack_require__(1950);
 __webpack_require__(8067);
 __webpack_require__(7114);
 __webpack_require__(2437);
-__webpack_require__(5292);
-__webpack_require__(3844);
 __webpack_require__(9330);
 __webpack_require__(1755);
 __webpack_require__(731);
@@ -20792,7 +20771,7 @@ __webpack_require__(4712);
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == typeof h && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw new Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(typeof e + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw new Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == typeof h && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(typeof e + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 var INITIAL_STATE = 1;
 var FAIL_STATE = 0;
 /**
@@ -20816,66 +20795,64 @@ var StateMachine = /*#__PURE__*/function () {
     return _ref = {}, _ref[Symbol.iterator] = /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
       var state, startRun, lastAccepting, lastState, p, c;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              state = INITIAL_STATE;
-              startRun = null;
-              lastAccepting = null;
-              lastState = null;
-              p = 0;
-            case 5:
-              if (!(p < str.length)) {
-                _context.next = 21;
-                break;
-              }
-              c = str[p];
-              lastState = state;
-              state = self.stateTable[state][c];
-              if (!(state === FAIL_STATE)) {
-                _context.next = 15;
-                break;
-              }
-              if (!(startRun != null && lastAccepting != null && lastAccepting >= startRun)) {
-                _context.next = 13;
-                break;
-              }
-              _context.next = 13;
-              return [startRun, lastAccepting, self.tags[lastState]];
-            case 13:
-              // reset the state as if we started over from the initial state
-
-              state = self.stateTable[INITIAL_STATE][c];
-              startRun = null;
-            case 15:
-              // start a run if not in the failure state
-
-              if (state !== FAIL_STATE && startRun == null) {
-                startRun = p;
-              } // if accepting, mark the potential match end
-
-              if (self.accepting[state]) {
-                lastAccepting = p;
-              } // reset the state to the initial state if we get into the failure state
-
-              if (state === FAIL_STATE) {
-                state = INITIAL_STATE;
-              }
-            case 18:
-              p++;
-              _context.next = 5;
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            state = INITIAL_STATE;
+            startRun = null;
+            lastAccepting = null;
+            lastState = null;
+            p = 0;
+          case 5:
+            if (!(p < str.length)) {
+              _context.next = 21;
               break;
-            case 21:
-              if (!(startRun != null && lastAccepting != null && lastAccepting >= startRun)) {
-                _context.next = 24;
-                break;
-              }
+            }
+            c = str[p];
+            lastState = state;
+            state = self.stateTable[state][c];
+            if (!(state === FAIL_STATE)) {
+              _context.next = 15;
+              break;
+            }
+            if (!(startRun != null && lastAccepting != null && lastAccepting >= startRun)) {
+              _context.next = 13;
+              break;
+            }
+            _context.next = 13;
+            return [startRun, lastAccepting, self.tags[lastState]];
+          case 13:
+            // reset the state as if we started over from the initial state
+
+            state = self.stateTable[INITIAL_STATE][c];
+            startRun = null;
+          case 15:
+            // start a run if not in the failure state
+
+            if (state !== FAIL_STATE && startRun == null) {
+              startRun = p;
+            } // if accepting, mark the potential match end
+
+            if (self.accepting[state]) {
+              lastAccepting = p;
+            } // reset the state to the initial state if we get into the failure state
+
+            if (state === FAIL_STATE) {
+              state = INITIAL_STATE;
+            }
+          case 18:
+            p++;
+            _context.next = 5;
+            break;
+          case 21:
+            if (!(startRun != null && lastAccepting != null && lastAccepting >= startRun)) {
               _context.next = 24;
-              return [startRun, lastAccepting, self.tags[state]];
-            case 24:
-            case "end":
-              return _context.stop();
-          }
+              break;
+            }
+            _context.next = 24;
+            return [startRun, lastAccepting, self.tags[state]];
+          case 24:
+          case "end":
+            return _context.stop();
         }
       }, _callee);
     }), _ref;
@@ -20939,18 +20916,6 @@ __webpack_require__(8067);
 var fs = __webpack_require__(35);
 var zlib = __webpack_require__(6729);
 module.exports = /*#__PURE__*/function () {
-  PNG.decode = function decode(path, fn) {
-    return fs.readFile(path, function (err, file) {
-      var png = new PNG(file);
-      return png.decode(function (pixels) {
-        return fn(pixels);
-      });
-    });
-  };
-  PNG.load = function load(path) {
-    var file = fs.readFileSync(path);
-    return new PNG(file);
-  };
   function PNG(data) {
     var i;
     this.data = data;
@@ -21058,6 +21023,18 @@ module.exports = /*#__PURE__*/function () {
       }
     }
   }
+  PNG.decode = function decode(path, fn) {
+    return fs.readFile(path, function (err, file) {
+      var png = new PNG(file);
+      return png.decode(function (pixels) {
+        return fn(pixels);
+      });
+    });
+  };
+  PNG.load = function load(path) {
+    var file = fs.readFileSync(path);
+    return new PNG(file);
+  };
   var _proto = PNG.prototype;
   _proto.read = function read(bytes) {
     var result = new Array(bytes);
@@ -21170,9 +21147,7 @@ module.exports = /*#__PURE__*/function () {
             var pixelsPos = ((y0 + row * dy) * width + x0) * pixelBytes;
             var bufferPos = row * scanlineLength;
             for (i = 0; i < w; i++) {
-              for (var j = 0; j < pixelBytes; j++) {
-                pixels[pixelsPos++] = buffer[bufferPos++];
-              }
+              for (var j = 0; j < pixelBytes; j++) pixels[pixelsPos++] = buffer[bufferPos++];
               pixelsPos += (dx - 1) * pixelBytes;
             }
           }
@@ -21377,7 +21352,6 @@ module.exports = safer;
 
 
 __webpack_require__(5292);
-__webpack_require__(3844);
 __webpack_require__(5597);
 __webpack_require__(9063);
 __webpack_require__(731);
@@ -21710,6 +21684,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 __webpack_require__(1755);
 __webpack_require__(731);
+__webpack_require__(8953);
 __webpack_require__(4032);
 __webpack_require__(6912);
 __webpack_require__(9735);
@@ -21928,7 +21903,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2282:
+/***/ 6659:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -21956,7 +21931,6 @@ __webpack_require__(731);
 __webpack_require__(5337);
 __webpack_require__(8953);
 __webpack_require__(4863);
-__webpack_require__(7283);
 __webpack_require__(95);
 __webpack_require__(849);
 __webpack_require__(8756);
@@ -22185,9 +22159,7 @@ function _unsupportedIterableToArray(o, minLen) {
 }
 function _arrayLikeToArray(arr, len) {
   if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-    arr2[i] = arr[i];
-  }
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
   return arr2;
 }
 function _nonIterableSpread() {
@@ -27843,7 +27815,7 @@ var MetadataMixin = {
     this._addInfo();
     this.metadata.end();
     /*
-    Metadata was introduced in PDF 1.4, so adding it to 1.3
+    Metadata was introduced in PDF 1.4, so adding it to 1.3 
     will likely only take up more space.
     */
 
@@ -30240,7 +30212,7 @@ var kBitMask = new Uint32Array([
 function BrotliBitReader(input) {
   this.buf_ = new Uint8Array(BROTLI_IBUF_SIZE);
   this.input_ = input;    /* input callback */
-
+  
   this.reset();
 }
 
@@ -30254,13 +30226,13 @@ BrotliBitReader.prototype.reset = function() {
   this.bit_pos_ = 0;      /* current bit-reading position in val_ */
   this.bit_end_pos_ = 0;  /* bit-reading end position from LSB of val_ */
   this.eos_ = 0;          /* input stream is finished */
-
+  
   this.readMoreInput();
   for (var i = 0; i < 4; i++) {
     this.val_ |= this.buf_[this.pos_] << (8 * i);
     ++this.pos_;
   }
-
+  
   return this.bit_end_pos_ > 0;
 };
 
@@ -30288,14 +30260,14 @@ BrotliBitReader.prototype.readMoreInput = function() {
     if (bytes_read < 0) {
       throw new Error('Unexpected end of input');
     }
-
+    
     if (bytes_read < BROTLI_READ_SIZE) {
       this.eos_ = 1;
       /* Store 32 bytes of zero after the stream end. */
       for (var p = 0; p < 32; p++)
         this.buf_[dst + bytes_read + p] = 0;
     }
-
+    
     if (dst === 0) {
       /* Copy the head of the ringbuffer to the slack region. */
       for (var p = 0; p < 32; p++)
@@ -30305,13 +30277,13 @@ BrotliBitReader.prototype.readMoreInput = function() {
     } else {
       this.buf_ptr_ = 0;
     }
-
+    
     this.bit_end_pos_ += bytes_read << 3;
   }
 };
 
 /* Guarantees that there are at least 24 bits in the buffer. */
-BrotliBitReader.prototype.fillBitWindow = function() {
+BrotliBitReader.prototype.fillBitWindow = function() {    
   while (this.bit_pos_ >= 8) {
     this.val_ >>>= 8;
     this.val_ |= this.buf_[this.pos_ & BROTLI_IBUF_MASK] << 24;
@@ -30326,7 +30298,7 @@ BrotliBitReader.prototype.readBits = function(n_bits) {
   if (32 - this.bit_pos_ < n_bits) {
     this.fillBitWindow();
   }
-
+  
   var val = ((this.val_ >>> this.bit_pos_) & kBitMask[n_bits]);
   this.bit_pos_ += n_bits;
   return val;
@@ -30661,17 +30633,17 @@ function DecodeWindowBits(br) {
   if (br.readBits(1) === 0) {
     return 16;
   }
-
+  
   n = br.readBits(3);
   if (n > 0) {
     return 17 + n;
   }
-
+  
   n = br.readBits(3);
   if (n > 0) {
     return 8 + n;
   }
-
+  
   return 17;
 }
 
@@ -30696,32 +30668,32 @@ function MetaBlockLength() {
 }
 
 function DecodeMetaBlockLength(br) {
-  var out = new MetaBlockLength;
+  var out = new MetaBlockLength;  
   var size_nibbles;
   var size_bytes;
   var i;
-
+  
   out.input_end = br.readBits(1);
   if (out.input_end && br.readBits(1)) {
     return out;
   }
-
+  
   size_nibbles = br.readBits(2) + 4;
   if (size_nibbles === 7) {
     out.is_metadata = true;
-
+    
     if (br.readBits(1) !== 0)
       throw new Error('Invalid reserved bit');
-
+    
     size_bytes = br.readBits(2);
     if (size_bytes === 0)
       return out;
-
+    
     for (i = 0; i < size_bytes; i++) {
       var next_byte = br.readBits(8);
       if (i + 1 === size_bytes && size_bytes > 1 && next_byte === 0)
         throw new Error('Invalid size byte');
-
+      
       out.meta_block_length |= next_byte << (i * 8);
     }
   } else {
@@ -30729,24 +30701,24 @@ function DecodeMetaBlockLength(br) {
       var next_nibble = br.readBits(4);
       if (i + 1 === size_nibbles && size_nibbles > 4 && next_nibble === 0)
         throw new Error('Invalid size nibble');
-
+      
       out.meta_block_length |= next_nibble << (i * 4);
     }
   }
-
+  
   ++out.meta_block_length;
-
+  
   if (!out.input_end && !out.is_metadata) {
     out.is_uncompressed = br.readBits(1);
   }
-
+  
   return out;
 }
 
 /* Decodes the next Huffman code from bit-stream. */
 function ReadSymbol(table, index, br) {
   var start_index = index;
-
+  
   var nbits;
   br.fillBitWindow();
   index += (br.val_ >>> br.bit_pos_) & HUFFMAN_TABLE_MASK;
@@ -30766,17 +30738,17 @@ function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_leng
   var repeat = 0;
   var repeat_code_len = 0;
   var space = 32768;
-
+  
   var table = [];
   for (var i = 0; i < 32; i++)
     table.push(new HuffmanCode(0, 0));
-
+  
   BrotliBuildHuffmanTable(table, 0, 5, code_length_code_lengths, CODE_LENGTH_CODES);
 
   while (symbol < num_symbols && space > 0) {
     var p = 0;
     var code_len;
-
+    
     br.readMoreInput();
     br.fillBitWindow();
     p += (br.val_ >>> br.bit_pos_) & 31;
@@ -30811,12 +30783,12 @@ function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_leng
       if (symbol + repeat_delta > num_symbols) {
         throw new Error('[ReadHuffmanCodeLengths] symbol + repeat_delta > num_symbols');
       }
-
+      
       for (var x = 0; x < repeat_delta; x++)
         code_lengths[symbol + x] = repeat_code_len;
-
+      
       symbol += repeat_delta;
-
+      
       if (repeat_code_len !== 0) {
         space -= repeat_delta << (15 - repeat_code_len);
       }
@@ -30825,7 +30797,7 @@ function ReadHuffmanCodeLengths(code_length_code_lengths, num_symbols, code_leng
   if (space !== 0) {
     throw new Error("[ReadHuffmanCodeLengths] space = " + space);
   }
-
+  
   for (; symbol < num_symbols; symbol++)
     code_lengths[symbol] = 0;
 }
@@ -30834,9 +30806,9 @@ function ReadHuffmanCode(alphabet_size, tables, table, br) {
   var table_size = 0;
   var simple_code_or_skip;
   var code_lengths = new Uint8Array(alphabet_size);
-
+  
   br.readMoreInput();
-
+  
   /* simple_code_or_skip is used as follows:
      1 for simple code;
      0 for no skipping, 2 skips 2 code lengths, 3 skips 3 code lengths */
@@ -30872,7 +30844,7 @@ function ReadHuffmanCode(alphabet_size, tables, table, br) {
         if (symbols[0] === symbols[1]) {
           throw new Error('[ReadHuffmanCode] invalid symbols');
         }
-
+        
         code_lengths[symbols[1]] = 1;
         break;
       case 4:
@@ -30884,7 +30856,7 @@ function ReadHuffmanCode(alphabet_size, tables, table, br) {
             (symbols[2] === symbols[3])) {
           throw new Error('[ReadHuffmanCode] invalid symbols');
         }
-
+        
         if (br.readBits(1)) {
           code_lengths[symbols[2]] = 3;
           code_lengths[symbols[3]] = 3;
@@ -30900,9 +30872,9 @@ function ReadHuffmanCode(alphabet_size, tables, table, br) {
     var num_codes = 0;
     /* Static Huffman code for the code length code lengths */
     var huff = [
-      new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(3, 2),
+      new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(3, 2), 
       new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(4, 1),
-      new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(3, 2),
+      new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(3, 2), 
       new HuffmanCode(2, 0), new HuffmanCode(2, 4), new HuffmanCode(2, 3), new HuffmanCode(4, 5)
     ];
     for (i = simple_code_or_skip; i < CODE_LENGTH_CODES && space > 0; ++i) {
@@ -30919,19 +30891,19 @@ function ReadHuffmanCode(alphabet_size, tables, table, br) {
         ++num_codes;
       }
     }
-
+    
     if (!(num_codes === 1 || space === 0))
       throw new Error('[ReadHuffmanCode] invalid num_codes or space');
-
+    
     ReadHuffmanCodeLengths(code_length_code_lengths, alphabet_size, code_lengths, br);
   }
-
+  
   table_size = BrotliBuildHuffmanTable(tables, table, HUFFMAN_TABLE_BITS, code_lengths, alphabet_size);
-
+  
   if (table_size === 0) {
     throw new Error("[ReadHuffmanCode] BuildHuffmanTable failed: ");
   }
-
+  
   return table_size;
 }
 
@@ -30979,7 +30951,7 @@ function InverseMoveToFrontTransform(v, v_len) {
 function HuffmanTreeGroup(alphabet_size, num_htrees) {
   this.alphabet_size = alphabet_size;
   this.num_htrees = num_htrees;
-  this.codes = new Array(num_htrees + num_htrees * kMaxHuffmanTableSize[(alphabet_size + 31) >>> 5]);
+  this.codes = new Array(num_htrees + num_htrees * kMaxHuffmanTableSize[(alphabet_size + 31) >>> 5]);  
   this.htrees = new Uint32Array(num_htrees);
 }
 
@@ -31000,7 +30972,7 @@ function DecodeContextMap(context_map_size, br) {
   var max_run_length_prefix = 0;
   var table;
   var i;
-
+  
   br.readMoreInput();
   var num_htrees = out.num_htrees = DecodeVarLenUint8(br) + 1;
 
@@ -31013,14 +30985,14 @@ function DecodeContextMap(context_map_size, br) {
   if (use_rle_for_zeros) {
     max_run_length_prefix = br.readBits(4) + 1;
   }
-
+  
   table = [];
   for (i = 0; i < HUFFMAN_MAX_TABLE_SIZE; i++) {
     table[i] = new HuffmanCode(0, 0);
   }
-
+  
   ReadHuffmanCode(num_htrees + max_run_length_prefix, table, 0, br);
-
+  
   for (i = 0; i < context_map_size;) {
     var code;
 
@@ -31046,7 +31018,7 @@ function DecodeContextMap(context_map_size, br) {
   if (br.readBits(1)) {
     InverseMoveToFrontTransform(context_map, context_map_size);
   }
-
+  
   return out;
 }
 
@@ -31107,7 +31079,7 @@ function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_
     var tail = BrotliBitReader.IBUF_MASK + 1 - br_pos;
     for (var x = 0; x < tail; x++)
       ringbuffer[rb_pos + x] = br.buf_[br_pos + x];
-
+    
     nbytes -= tail;
     rb_pos += tail;
     len -= tail;
@@ -31116,7 +31088,7 @@ function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_
 
   for (var x = 0; x < nbytes; x++)
     ringbuffer[rb_pos + x] = br.buf_[br_pos + x];
-
+  
   rb_pos += nbytes;
   len -= nbytes;
 
@@ -31124,7 +31096,7 @@ function CopyUncompressedBlockToOutput(output, len, pos, ringbuffer, ringbuffer_
      ringbuffer to its beginning and flush the ringbuffer to the output. */
   if (rb_pos >= rb_size) {
     output.write(ringbuffer, rb_size);
-    rb_pos -= rb_size;
+    rb_pos -= rb_size;    
     for (var x = 0; x < rb_pos; x++)
       ringbuffer[x] = ringbuffer[rb_size + x];
   }
@@ -31172,20 +31144,20 @@ __webpack_unused_export__ = BrotliDecompressedSize;
 
 function BrotliDecompressBuffer(buffer, output_size) {
   var input = new BrotliInput(buffer);
-
+  
   if (output_size == null) {
     output_size = BrotliDecompressedSize(buffer);
   }
-
+  
   var output_buffer = new Uint8Array(output_size);
   var output = new BrotliOutput(output_buffer);
-
+  
   BrotliDecompress(input, output);
-
+  
   if (output.pos < output.buffer.length) {
     output.buffer = output.buffer.subarray(0, output.pos);
   }
-
+  
   return output.buffer;
 }
 
@@ -31272,7 +31244,7 @@ function BrotliDecompress(input, output) {
     }
 
     br.readMoreInput();
-
+    
     var _out = DecodeMetaBlockLength(br);
     meta_block_remaining_len = _out.meta_block_length;
     if (pos + meta_block_remaining_len > output.buffer.length) {
@@ -31280,26 +31252,26 @@ function BrotliDecompress(input, output) {
       var tmp = new Uint8Array( pos + meta_block_remaining_len );
       tmp.set( output.buffer );
       output.buffer = tmp;
-    }
+    }    
     input_end = _out.input_end;
     is_uncompressed = _out.is_uncompressed;
-
+    
     if (_out.is_metadata) {
       JumpToByteBoundary(br);
-
+      
       for (; meta_block_remaining_len > 0; --meta_block_remaining_len) {
         br.readMoreInput();
         /* Read one byte and ignore it. */
         br.readBits(8);
       }
-
+      
       continue;
     }
-
+    
     if (meta_block_remaining_len === 0) {
       continue;
     }
-
+    
     if (is_uncompressed) {
       br.bit_pos_ = (br.bit_pos_ + 7) & ~7;
       CopyUncompressedBlockToOutput(output, meta_block_remaining_len, pos,
@@ -31307,7 +31279,7 @@ function BrotliDecompress(input, output) {
       pos += meta_block_remaining_len;
       continue;
     }
-
+    
     for (i = 0; i < 3; ++i) {
       num_block_types[i] = DecodeVarLenUint8(br) + 1;
       if (num_block_types[i] >= 2) {
@@ -31317,9 +31289,9 @@ function BrotliDecompress(input, output) {
         block_type_rb_index[i] = 1;
       }
     }
-
+    
     br.readMoreInput();
-
+    
     distance_postfix_bits = br.readBits(2);
     num_direct_distance_codes = NUM_DISTANCE_SHORT_CODES + (br.readBits(4) << distance_postfix_bits);
     distance_postfix_mask = (1 << distance_postfix_bits) - 1;
@@ -31330,15 +31302,15 @@ function BrotliDecompress(input, output) {
        br.readMoreInput();
        context_modes[i] = (br.readBits(2) << 1);
     }
-
+    
     var _o1 = DecodeContextMap(num_block_types[0] << kLiteralContextBits, br);
     num_literal_htrees = _o1.num_htrees;
     context_map = _o1.context_map;
-
+    
     var _o2 = DecodeContextMap(num_block_types[2] << kDistanceContextBits, br);
     num_dist_htrees = _o2.num_htrees;
     dist_context_map = _o2.context_map;
-
+    
     hgroup[0] = new HuffmanTreeGroup(kNumLiteralCodes, num_literal_htrees);
     hgroup[1] = new HuffmanTreeGroup(kNumInsertAndCopyCodes, num_block_types[1]);
     hgroup[2] = new HuffmanTreeGroup(num_distance_codes, num_dist_htrees);
@@ -31368,7 +31340,7 @@ function BrotliDecompress(input, output) {
       var copy_dst;
 
       br.readMoreInput();
-
+      
       if (block_length[1] === 0) {
         DecodeBlockType(num_block_types[1],
                         block_type_trees, 1, block_type, block_type_rb,
@@ -31424,7 +31396,7 @@ function BrotliDecompress(input, output) {
 
       if (distance_code < 0) {
         var context;
-
+        
         br.readMoreInput();
         if (block_length[2] === 0) {
           DecodeBlockType(num_block_types[2],
@@ -31486,7 +31458,7 @@ function BrotliDecompress(input, output) {
             meta_block_remaining_len -= len;
             if (copy_dst >= ringbuffer_end) {
               output.write(ringbuffer, ringbuffer_size);
-
+              
               for (var _x = 0; _x < (copy_dst - ringbuffer_end); _x++)
                 ringbuffer[_x] = ringbuffer[ringbuffer_end + _x];
             }
@@ -31546,10 +31518,10 @@ BrotliDictionary.init();
 var base64 = __webpack_require__(2504);
 
 /**
- * The normal dictionary-data.js is quite large, which makes it
- * unsuitable for browser usage. In order to make it smaller,
+ * The normal dictionary-data.js is quite large, which makes it 
+ * unsuitable for browser usage. In order to make it smaller, 
  * we read dictionary.bin, which is a compressed version of
- * the dictionary, and on initial load, Brotli decompresses
+ * the dictionary, and on initial load, Brotli decompresses 
  * it's own dictionary. 😜
  */
 exports.init = function() {
@@ -31692,7 +31664,7 @@ exports.u = function(root_table, table, root_bits, code_lengths, code_lengths_si
       sorted[offset[code_lengths[symbol]]++] = symbol;
     }
   }
-
+  
   table_bits = root_bits;
   table_size = 1 << table_bits;
   total_size = table_size;
@@ -31702,7 +31674,7 @@ exports.u = function(root_table, table, root_bits, code_lengths, code_lengths_si
     for (key = 0; key < total_size; ++key) {
       root_table[table + key] = new HuffmanCode(0, sorted[0] & 0xffff);
     }
-
+    
     return total_size;
   }
 
@@ -31735,7 +31707,7 @@ exports.u = function(root_table, table, root_bits, code_lengths, code_lengths_si
       key = GetNextKey(key, len);
     }
   }
-
+  
   return total_size;
 }
 
@@ -31821,10 +31793,10 @@ BrotliInput.prototype.read = function(buf, i, count) {
   if (this.pos + count > this.buffer.length) {
     count = this.buffer.length - this.pos;
   }
-
+  
   for (var p = 0; p < count; p++)
     buf[i + p] = this.buffer[this.pos + p];
-
+  
   this.pos += count;
   return count;
 }
@@ -31839,7 +31811,7 @@ function BrotliOutput(buf) {
 BrotliOutput.prototype.write = function(buf, count) {
   if (this.pos + count > this.buffer.length)
     throw new Error('Output buffer is not large enough');
-
+  
   this.buffer.set(buf.subarray(0, count), this.pos);
   this.pos += count;
   return count;
@@ -31898,10 +31870,10 @@ function Transform(prefix, transform, suffix) {
   this.prefix = new Uint8Array(prefix.length);
   this.transform = transform;
   this.suffix = new Uint8Array(suffix.length);
-
+  
   for (var i = 0; i < prefix.length; i++)
     this.prefix[i] = prefix.charCodeAt(i);
-
+  
   for (var i = 0; i < suffix.length; i++)
     this.suffix[i] = suffix.charCodeAt(i);
 }
@@ -32040,13 +32012,13 @@ function ToUpperCase(p, i) {
     }
     return 1;
   }
-
+  
   /* An overly simplified uppercasing model for utf-8. */
   if (p[i] < 0xe0) {
     p[i + 1] ^= 32;
     return 2;
   }
-
+  
   /* An arbitrary transform for three byte characters. */
   p[i + 2] ^= 5;
   return 3;
@@ -32060,29 +32032,29 @@ exports.transformDictionaryWord = function(dst, idx, word, len, transform) {
   var i = 0;
   var start_idx = idx;
   var uppercase;
-
+  
   if (skip > len) {
     skip = len;
   }
-
+  
   var prefix_pos = 0;
   while (prefix_pos < prefix.length) {
     dst[idx++] = prefix[prefix_pos++];
   }
-
+  
   word += skip;
   len -= skip;
-
+  
   if (t <= kOmitLast9) {
     len -= t;
   }
-
+  
   for (i = 0; i < len; i++) {
     dst[idx++] = BrotliDictionary.dictionary[word + i];
   }
-
+  
   uppercase = idx - len;
-
+  
   if (t === kUppercaseFirst) {
     ToUpperCase(dst, uppercase);
   } else if (t === kUppercaseAll) {
@@ -32092,12 +32064,12 @@ exports.transformDictionaryWord = function(dst, idx, word, len, transform) {
       len -= step;
     }
   }
-
+  
   var suffix_pos = 0;
   while (suffix_pos < suffix.length) {
     dst[idx++] = suffix[suffix_pos++];
   }
-
+  
   return idx - start_idx;
 }
 
@@ -35184,6 +35156,50 @@ module.exports = function (KEY, exec, FORCED, SHAM) {
 
   if (SHAM) createNonEnumerableProperty(RegExpPrototype[SYMBOL], 'sham', true);
 };
+
+
+/***/ }),
+
+/***/ 510:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var global = __webpack_require__(2010);
+var isArray = __webpack_require__(9113);
+var lengthOfArrayLike = __webpack_require__(5495);
+var bind = __webpack_require__(7948);
+
+var TypeError = global.TypeError;
+
+// `FlattenIntoArray` abstract operation
+// https://tc39.github.io/proposal-flatMap/#sec-FlattenIntoArray
+var flattenIntoArray = function (target, original, source, sourceLen, start, depth, mapper, thisArg) {
+  var targetIndex = start;
+  var sourceIndex = 0;
+  var mapFn = mapper ? bind(mapper, thisArg) : false;
+  var element, elementLen;
+
+  while (sourceIndex < sourceLen) {
+    if (sourceIndex in source) {
+      element = mapFn ? mapFn(source[sourceIndex], sourceIndex, original) : source[sourceIndex];
+
+      if (depth > 0 && isArray(element)) {
+        elementLen = lengthOfArrayLike(element);
+        targetIndex = flattenIntoArray(target, original, element, elementLen, targetIndex, depth - 1) - 1;
+      } else {
+        if (targetIndex >= 0x1FFFFFFFFFFFFF) throw TypeError('Exceed the acceptable array length');
+        target[targetIndex] = element;
+      }
+
+      targetIndex++;
+    }
+    sourceIndex++;
+  }
+  return targetIndex;
+};
+
+module.exports = flattenIntoArray;
 
 
 /***/ }),
@@ -38802,6 +38818,63 @@ $({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
 
 /***/ }),
 
+/***/ 7373:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(6475);
+var flattenIntoArray = __webpack_require__(510);
+var aCallable = __webpack_require__(2631);
+var toObject = __webpack_require__(3162);
+var lengthOfArrayLike = __webpack_require__(5495);
+var arraySpeciesCreate = __webpack_require__(5744);
+
+// `Array.prototype.flatMap` method
+// https://tc39.es/ecma262/#sec-array.prototype.flatmap
+$({ target: 'Array', proto: true }, {
+  flatMap: function flatMap(callbackfn /* , thisArg */) {
+    var O = toObject(this);
+    var sourceLen = lengthOfArrayLike(O);
+    var A;
+    aCallable(callbackfn);
+    A = arraySpeciesCreate(O, 0);
+    A.length = flattenIntoArray(A, O, O, sourceLen, 0, 1, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    return A;
+  }
+});
+
+
+/***/ }),
+
+/***/ 602:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(6475);
+var flattenIntoArray = __webpack_require__(510);
+var toObject = __webpack_require__(3162);
+var lengthOfArrayLike = __webpack_require__(5495);
+var toIntegerOrInfinity = __webpack_require__(6882);
+var arraySpeciesCreate = __webpack_require__(5744);
+
+// `Array.prototype.flat` method
+// https://tc39.es/ecma262/#sec-array.prototype.flat
+$({ target: 'Array', proto: true }, {
+  flat: function flat(/* depthArg = 1 */) {
+    var depthArg = arguments.length ? arguments[0] : undefined;
+    var O = toObject(this);
+    var sourceLen = lengthOfArrayLike(O);
+    var A = arraySpeciesCreate(O, 0);
+    A.length = flattenIntoArray(A, O, O, sourceLen, 0, depthArg === undefined ? 1 : toIntegerOrInfinity(depthArg));
+    return A;
+  }
+});
+
+
+/***/ }),
+
 /***/ 1765:
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
@@ -39202,6 +39275,32 @@ $({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
     return A;
   }
 });
+
+
+/***/ }),
+
+/***/ 4182:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+// this method was added to unscopables after implementation
+// in popular engines, so it's moved to a separate module
+var addToUnscopables = __webpack_require__(1156);
+
+// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+addToUnscopables('flatMap');
+
+
+/***/ }),
+
+/***/ 6777:
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+// this method was added to unscopables after implementation
+// in popular engines, so it's moved to a separate module
+var addToUnscopables = __webpack_require__(1156);
+
+// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+addToUnscopables('flat');
 
 
 /***/ }),
@@ -44066,8 +44165,14 @@ var isFunction = function (fn) {
 var supportsDescriptors = __webpack_require__(8890)();
 
 var defineProperty = function (object, name, value, predicate) {
-	if (name in object && (!isFunction(predicate) || !predicate())) {
-		return;
+	if (name in object) {
+		if (predicate === true) {
+			if (object[name] === value) {
+				return;
+			}
+		} else if (!isFunction(predicate) || !predicate()) {
+			return;
+		}
 	}
 
 	if (supportsDescriptors) {
@@ -45039,6 +45144,8 @@ var INTRINSICS = {
 	'%AsyncIteratorPrototype%': needsEval,
 	'%Atomics%': typeof Atomics === 'undefined' ? undefined : Atomics,
 	'%BigInt%': typeof BigInt === 'undefined' ? undefined : BigInt,
+	'%BigInt64Array%': typeof BigInt64Array === 'undefined' ? undefined : BigInt64Array,
+	'%BigUint64Array%': typeof BigUint64Array === 'undefined' ? undefined : BigUint64Array,
 	'%Boolean%': Boolean,
 	'%DataView%': typeof DataView === 'undefined' ? undefined : DataView,
 	'%Date%': Date,
@@ -45552,7 +45659,7 @@ function DBCSCodec(codecOptions, iconv) {
     this.decodeTables = [];
     this.decodeTables[0] = UNASSIGNED_NODE.slice(0); // Create root node.
 
-    // Sometimes a MBCS char corresponds to a sequence of unicode chars. We store them as arrays of integers here.
+    // Sometimes a MBCS char corresponds to a sequence of unicode chars. We store them as arrays of integers here. 
     this.decodeTableSeq = [];
 
     // Actual mapping tables consist of chunks. Use them to fill up decode tables.
@@ -45603,7 +45710,7 @@ function DBCSCodec(codecOptions, iconv) {
 
     this.defaultCharUnicode = iconv.defaultCharUnicode;
 
-
+    
     // Encode tables: Unicode -> DBCS.
 
     // `encodeTable` is array mapping from unicode char to encoded char. All its values are integers for performance.
@@ -45612,7 +45719,7 @@ function DBCSCodec(codecOptions, iconv) {
     //         == UNASSIGNED -> no conversion found. Output a default char.
     //         <= SEQ_START  -> it's an index in encodeTableSeq, see below. The character starts a sequence.
     this.encodeTable = [];
-
+    
     // `encodeTableSeq` is used when a sequence of unicode characters is encoded as a single code. We use a tree of
     // objects where keys correspond to characters in sequence and leafs are the encoded dbcs values. A special DEF_CHAR key
     // means end of sequence (needed when one sequence is a strict subsequence of another).
@@ -45630,7 +45737,7 @@ function DBCSCodec(codecOptions, iconv) {
                 for (var j = val.from; j <= val.to; j++)
                     skipEncodeChars[j] = true;
         }
-
+        
     // Use decode trie to recursively fill out encode tables.
     this._fillEncodeTable(0, 0, skipEncodeChars);
 
@@ -45708,7 +45815,7 @@ DBCSCodec.prototype._addDecodeChunk = function(chunk) {
                 else
                     writeTable[curAddr++] = code; // Basic char
             }
-        }
+        } 
         else if (typeof part === "number") { // Integer, meaning increasing sequence starting with prev character.
             var charCode = writeTable[curAddr - 1] + 1;
             for (var l = 0; l < part; l++)
@@ -45739,7 +45846,7 @@ DBCSCodec.prototype._setEncodeChar = function(uCode, dbcsCode) {
 }
 
 DBCSCodec.prototype._setEncodeSequence = function(seq, dbcsCode) {
-
+    
     // Get the root of character tree according to first character of the sequence.
     var uCode = seq[0];
     var bucket = this._getEncodeBucket(uCode);
@@ -45813,7 +45920,7 @@ function DBCSEncoder(options, codec) {
     // Encoder state
     this.leadSurrogate = -1;
     this.seqObj = undefined;
-
+    
     // Static data
     this.encodeTable = codec.encodeTable;
     this.encodeTableSeq = codec.encodeTableSeq;
@@ -45835,7 +45942,7 @@ DBCSEncoder.prototype.write = function(str) {
         }
         else {
             var uCode = nextChar;
-            nextChar = -1;
+            nextChar = -1;    
         }
 
         // 1. Handle surrogates.
@@ -45857,7 +45964,7 @@ DBCSEncoder.prototype.write = function(str) {
                     // Incomplete surrogate pair - only trail surrogate found.
                     uCode = UNASSIGNED;
                 }
-
+                
             }
         }
         else if (leadSurrogate !== -1) {
@@ -45898,7 +46005,7 @@ DBCSEncoder.prototype.write = function(str) {
             var subtable = this.encodeTable[uCode >> 8];
             if (subtable !== undefined)
                 dbcsCode = subtable[uCode & 0xFF];
-
+            
             if (dbcsCode <= SEQ_START) { // Sequence start
                 seqObj = this.encodeTableSeq[SEQ_START-dbcsCode];
                 continue;
@@ -45921,7 +46028,7 @@ DBCSEncoder.prototype.write = function(str) {
         // 3. Write dbcsCode character.
         if (dbcsCode === UNASSIGNED)
             dbcsCode = this.defaultCharSingleByte;
-
+        
         if (dbcsCode < 0x100) {
             newBuf[j++] = dbcsCode;
         }
@@ -45973,7 +46080,7 @@ DBCSEncoder.prototype.end = function() {
         newBuf[j++] = this.defaultCharSingleByte;
         this.leadSurrogate = -1;
     }
-
+    
     return newBuf.slice(0, j);
 }
 
@@ -45997,7 +46104,7 @@ function DBCSDecoder(options, codec) {
 
 DBCSDecoder.prototype.write = function(buf) {
     var newBuf = Buffer.alloc(buf.length*2),
-        nodeIdx = this.nodeIdx,
+        nodeIdx = this.nodeIdx, 
         prevBytes = this.prevBytes, prevOffset = this.prevBytes.length,
         seqStart = -this.prevBytes.length, // idx of the start of current parsed sequence.
         uCode;
@@ -46008,7 +46115,7 @@ DBCSDecoder.prototype.write = function(buf) {
         // Lookup in current trie node.
         var uCode = this.decodeTables[nodeIdx][curByte];
 
-        if (uCode >= 0) {
+        if (uCode >= 0) { 
             // Normal character, just use it.
         }
         else if (uCode === UNASSIGNED) { // Unknown char.
@@ -46020,9 +46127,9 @@ DBCSDecoder.prototype.write = function(buf) {
             if (i >= 3) {
                 var ptr = (buf[i-3]-0x81)*12600 + (buf[i-2]-0x30)*1260 + (buf[i-1]-0x81)*10 + (curByte-0x30);
             } else {
-                var ptr = (prevBytes[i-3+prevOffset]-0x81)*12600 +
-                          (((i-2 >= 0) ? buf[i-2] : prevBytes[i-2+prevOffset])-0x30)*1260 +
-                          (((i-1 >= 0) ? buf[i-1] : prevBytes[i-1+prevOffset])-0x81)*10 +
+                var ptr = (prevBytes[i-3+prevOffset]-0x81)*12600 + 
+                          (((i-2 >= 0) ? buf[i-2] : prevBytes[i-2+prevOffset])-0x30)*1260 + 
+                          (((i-1 >= 0) ? buf[i-1] : prevBytes[i-1+prevOffset])-0x81)*10 + 
                           (curByte-0x30);
             }
             var idx = findIdx(this.gb18030.gbChars, ptr);
@@ -46045,7 +46152,7 @@ DBCSDecoder.prototype.write = function(buf) {
             throw new Error("iconv-lite internal error: invalid decoding table value " + uCode + " at " + nodeIdx + "/" + curByte);
 
         // Write the character to buffer, handling higher planes using surrogate pair.
-        if (uCode >= 0x10000) {
+        if (uCode >= 0x10000) { 
             uCode -= 0x10000;
             var uCodeLead = 0xD800 | (uCode >> 10);
             newBuf[j++] = uCodeLead & 0xFF;
@@ -46120,11 +46227,11 @@ function findIdx(table, val) {
 // require()-s are direct to support Browserify.
 
 module.exports = {
-
+    
     // == Japanese/ShiftJIS ====================================================
     // All japanese encodings are based on JIS X set of standards:
     // JIS X 0201 - Single-byte encoding of ASCII + ¥ + Kana chars at 0xA1-0xDF.
-    // JIS X 0208 - Main set of 6879 characters, placed in 94x94 plane, to be encoded by 2 bytes.
+    // JIS X 0208 - Main set of 6879 characters, placed in 94x94 plane, to be encoded by 2 bytes. 
     //              Has several variations in 1978, 1983, 1990 and 1997.
     // JIS X 0212 - Supplementary plane of 6067 chars in 94x94 plane. 1990. Effectively dead.
     // JIS X 0213 - Extension and modern replacement of 0208 and 0212. Total chars: 11233.
@@ -46142,7 +46249,7 @@ module.exports = {
     //               0x8F, (0xA1-0xFE)x2 - 0212 plane (94x94).
     //  * JIS X 208: 7-bit, direct encoding of 0208. Byte ranges: 0x21-0x7E (94 values). Uncommon.
     //               Used as-is in ISO2022 family.
-    //  * ISO2022-JP: Stateful encoding, with escape sequences to switch between ASCII,
+    //  * ISO2022-JP: Stateful encoding, with escape sequences to switch between ASCII, 
     //                0201-1976 Roman, 0208-1978, 0208-1983.
     //  * ISO2022-JP-1: Adds esc seq for 0212-1990.
     //  * ISO2022-JP-2: Adds esc seq for GB2313-1980, KSX1001-1992, ISO8859-1, ISO8859-7.
@@ -46254,7 +46361,7 @@ module.exports = {
     //  * Windows CP 951: Microsoft variant of Big5-HKSCS-2001. Seems to be never public. http://me.abelcheung.org/articles/research/what-is-cp951/
     //  * Big5-2003 (Taiwan standard) almost superset of cp950.
     //  * Unicode-at-on (UAO) / Mozilla 1.8. Falling out of use on the Web. Not supported by other browsers.
-    //  * Big5-HKSCS (-2001, -2004, -2008). Hong Kong standard.
+    //  * Big5-HKSCS (-2001, -2004, -2008). Hong Kong standard. 
     //    many unicode code points moved from PUA to Supplementary plane (U+2XXXX) over the years.
     //    Plus, it has 4 combining sequences.
     //    Seems that Mozilla refused to support it for 10 yrs. https://bugzilla.mozilla.org/show_bug.cgi?id=162431 https://bugzilla.mozilla.org/show_bug.cgi?id=310299
@@ -46265,7 +46372,7 @@ module.exports = {
     //    In the encoder, it might make sense to support encoding old PUA mappings to Big5 bytes seq-s.
     //    Official spec: http://www.ogcio.gov.hk/en/business/tech_promotion/ccli/terms/doc/2003cmp_2008.txt
     //                   http://www.ogcio.gov.hk/tc/business/tech_promotion/ccli/terms/doc/hkscs-2008-big5-iso.txt
-    //
+    // 
     // Current understanding of how to deal with Big5(-HKSCS) is in the Encoding Standard, http://encoding.spec.whatwg.org/#big5-encoder
     // Unicode mapping (http://www.unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/OTHER/BIG5.TXT) is said to be wrong.
 
@@ -46488,7 +46595,7 @@ function InternalDecoderCesu8(options, codec) {
 }
 
 InternalDecoderCesu8.prototype.write = function(buf) {
-    var acc = this.acc, contBytes = this.contBytes, accBytes = this.accBytes,
+    var acc = this.acc, contBytes = this.contBytes, accBytes = this.accBytes, 
         res = '';
     for (var i = 0; i < buf.length; i++) {
         var curByte = buf[i];
@@ -46550,17 +46657,17 @@ InternalDecoderCesu8.prototype.end = function() {
 var Buffer = (__webpack_require__(5524).Buffer);
 
 // Single-byte codec. Needs a 'chars' string parameter that contains 256 or 128 chars that
-// correspond to encoded bytes (if 128 - then lower half is ASCII).
+// correspond to encoded bytes (if 128 - then lower half is ASCII). 
 
 exports._sbcs = SBCSCodec;
 function SBCSCodec(codecOptions, iconv) {
     if (!codecOptions)
         throw new Error("SBCS codec is called without the data.")
-
+    
     // Prepare char buffer for decoding.
     if (!codecOptions.chars || (codecOptions.chars.length !== 128 && codecOptions.chars.length !== 256))
         throw new Error("Encoding '"+codecOptions.type+"' has incorrect 'chars' (must be of len 128 or 256)");
-
+    
     if (codecOptions.chars.length === 128) {
         var asciiString = "";
         for (var i = 0; i < 128; i++)
@@ -46569,7 +46676,7 @@ function SBCSCodec(codecOptions, iconv) {
     }
 
     this.decodeBuf = Buffer.from(codecOptions.chars, 'ucs2');
-
+    
     // Encoding buffer.
     var encodeBuf = Buffer.alloc(65536, iconv.defaultCharSingleByte.charCodeAt(0));
 
@@ -46591,7 +46698,7 @@ SBCSEncoder.prototype.write = function(str) {
     var buf = Buffer.alloc(str.length);
     for (var i = 0; i < str.length; i++)
         buf[i] = this.encodeBuf[str.charCodeAt(i)];
-
+    
     return buf;
 }
 
@@ -47389,7 +47496,7 @@ Utf16Decoder.prototype.write = function(buf) {
         // Codec is not chosen yet. Accumulate initial bytes.
         this.initialBufs.push(buf);
         this.initialBufsLen += buf.length;
-
+        
         if (this.initialBufsLen < 16) // We need more bytes to use space heuristic (see below)
             return '';
 
@@ -47596,7 +47703,7 @@ Utf32Decoder.prototype.write = function(src) {
     if (overflow.length > 0) {
         for (; i < src.length && overflow.length < 4; i++)
             overflow.push(src[i]);
-
+        
         if (overflow.length === 4) {
             // NOTE: codepoint is a signed int32 and can be negative.
             // NOTE: We copied this block from below to help V8 optimize it (it works with array, not buffer).
@@ -47635,7 +47742,7 @@ function _writeCodepoint(dst, offset, codepoint, badChar) {
     if (codepoint < 0 || codepoint > 0x10FFFF) {
         // Not a valid Unicode codepoint
         codepoint = badChar;
-    }
+    } 
 
     // Ephemeral Planes: Write high surrogate.
     if (codepoint >= 0x10000) {
@@ -47707,7 +47814,7 @@ function Utf32AutoDecoder(options, codec) {
 }
 
 Utf32AutoDecoder.prototype.write = function(buf) {
-    if (!this.decoder) {
+    if (!this.decoder) { 
         // Codec is not chosen yet. Accumulate initial bytes.
         this.initialBufs.push(buf);
         this.initialBufsLen += buf.length;
@@ -47832,8 +47939,8 @@ Utf7Encoder.prototype.write = function(str) {
     // Naive implementation.
     // Non-direct chars are encoded as "+<base64>-"; single "+" char is encoded as "+-".
     return Buffer.from(str.replace(nonDirectChars, function(chunk) {
-        return "+" + (chunk === '+' ? '' :
-            this.iconv.encode(chunk, 'utf16-be').toString('base64').replace(/=+$/, ''))
+        return "+" + (chunk === '+' ? '' : 
+            this.iconv.encode(chunk, 'utf16-be').toString('base64').replace(/=+$/, '')) 
             + "-";
     }.bind(this)));
 }
@@ -47855,7 +47962,7 @@ var base64Chars = [];
 for (var i = 0; i < 256; i++)
     base64Chars[i] = base64Regex.test(String.fromCharCode(i));
 
-var plusChar = '+'.charCodeAt(0),
+var plusChar = '+'.charCodeAt(0), 
     minusChar = '-'.charCodeAt(0),
     andChar = '&'.charCodeAt(0);
 
@@ -48184,7 +48291,7 @@ iconv.encode = function encode(str, encoding, options) {
 
     var res = encoder.write(str);
     var trail = encoder.end();
-
+    
     return (trail && trail.length > 0) ? Buffer.concat([res, trail]) : res;
 }
 
@@ -48224,7 +48331,7 @@ iconv._codecDataCache = {};
 iconv.getCodec = function getCodec(encoding) {
     if (!iconv.encodings)
         iconv.encodings = __webpack_require__(6326); // Lazy load all encoding definitions.
-
+    
     // Canonicalize encoding name: strip all non-alphanumeric chars and appended year.
     var enc = iconv._canonicalizeEncoding(encoding);
 
@@ -48248,7 +48355,7 @@ iconv.getCodec = function getCodec(encoding) {
 
                 if (!codecOptions.encodingName)
                     codecOptions.encodingName = enc;
-
+                
                 enc = codecDef.type;
                 break;
 
@@ -48351,7 +48458,7 @@ if (false) {}
 
 var Buffer = (__webpack_require__(5524).Buffer);
 
-// NOTE: Due to 'stream' module being pretty large (~100Kb, significant in browser environments),
+// NOTE: Due to 'stream' module being pretty large (~100Kb, significant in browser environments), 
 // we opt to dependency-inject it instead of creating a hard dependency.
 module.exports = function(stream_module) {
     var Transform = stream_module.Transform;
@@ -48433,7 +48540,7 @@ module.exports = function(stream_module) {
     IconvLiteDecoderStream.prototype._flush = function(done) {
         try {
             var res = this.conv.end();
-            if (res && res.length) this.push(res, this.encoding);
+            if (res && res.length) this.push(res, this.encoding);                
             done();
         }
         catch (e) {
@@ -57133,9 +57240,7 @@ var gOPD = __webpack_require__(8109);
 var $TypeError = __webpack_require__(6785);
 var $floor = GetIntrinsic('%Math.floor%');
 
-/** @typedef {(...args: unknown[]) => unknown} Func */
-
-/** @type {<T extends Func = Func>(fn: T, length: number, loose?: boolean) => T} */
+/** @type {import('.')} */
 module.exports = function setFunctionLength(fn, length) {
 	if (typeof fn !== 'function') {
 		throw new $TypeError('`fn` is not a function');
@@ -60376,10 +60481,10 @@ function Data(source, dest) {
   this.sourceIndex = 0;
   this.tag = 0;
   this.bitcount = 0;
-
+  
   this.dest = dest;
   this.destLen = 0;
-
+  
   this.ltree = new Tree();  /* dynamic length/symbol tree */
   this.dtree = new Tree();  /* dynamic distance tree */
 }
@@ -60521,7 +60626,7 @@ function tinf_decode_symbol(d, t) {
     d.tag |= d.source[d.sourceIndex++] << d.bitcount;
     d.bitcount += 8;
   }
-
+  
   var sum = 0, cur = 0, len = 0;
   var tag = d.tag;
 
@@ -60534,7 +60639,7 @@ function tinf_decode_symbol(d, t) {
     sum += t.table[len];
     cur -= t.table[len];
   } while (cur >= 0);
-
+  
   d.tag = tag;
   d.bitcount -= len;
 
@@ -60645,7 +60750,7 @@ function tinf_inflate_block_data(d, lt, dt) {
 function tinf_inflate_uncompressed_block(d) {
   var length, invlength;
   var i;
-
+  
   /* unread from bitbuffer */
   while (d.bitcount > 8) {
     d.sourceIndex--;
@@ -60718,7 +60823,7 @@ function tinf_uncompress(source, dest) {
     else
       return d.dest.subarray(0, d.destLen);
   }
-
+  
   return d.dest;
 }
 
@@ -61905,6 +62010,7 @@ var callBind = __webpack_require__(6601);
 var callBound = __webpack_require__(7913);
 var gOPD = __webpack_require__(8109);
 
+/** @type {(O: object) => string} */
 var $toString = callBound('Object.prototype.toString');
 var hasToStringTag = __webpack_require__(6626)();
 
@@ -61914,7 +62020,8 @@ var typedArrays = availableTypedArrays();
 var $slice = callBound('String.prototype.slice');
 var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 
-var $indexOf = callBound('Array.prototype.indexOf', true) || /** @type {(array: readonly unknown[], value: unknown) => keyof array} */ function indexOf(array, value) {
+/** @type {<T = unknown>(array: readonly T[], value: unknown) => number} */
+var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
 	for (var i = 0; i < array.length; i += 1) {
 		if (array[i] === value) {
 			return i;
@@ -61923,9 +62030,8 @@ var $indexOf = callBound('Array.prototype.indexOf', true) || /** @type {(array: 
 	return -1;
 };
 
-/** @typedef {Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array | BigInt64Array | BigUint64Array} TypedArray */
-/** @typedef {'Int8Array' | 'Uint8Array' | 'Uint8ClampedArray' | 'Int16Array' | 'Uint16Array' | 'Int32Array' | 'Uint32Array' | 'Float32Array' | 'Float64Array' | 'BigInt64Array' | 'BigUint64Array'} TypedArrayName */
-/** @type {{ [k in `\$${TypedArrayName}`]?: (receiver: TypedArray) => string | typeof Uint8Array.prototype.slice.call | typeof Uint8Array.prototype.set.call } & { __proto__: null }} */
+/** @typedef {(receiver: import('.').TypedArray) => string | typeof Uint8Array.prototype.slice.call | typeof Uint8Array.prototype.set.call} Getter */
+/** @type {{ [k in `\$${import('.').TypedArrayName}`]?: Getter } & { __proto__: null }} */
 var cache = { __proto__: null };
 if (hasToStringTag && gOPD && getPrototypeOf) {
 	forEach(typedArrays, function (typedArray) {
@@ -61954,13 +62060,14 @@ if (hasToStringTag && gOPD && getPrototypeOf) {
 	});
 }
 
-/** @type {import('.')} */
+/** @type {(value: object) => false | import('.').TypedArrayName} */
 var tryTypedArrays = function tryAllTypedArrays(value) {
-	/** @type {ReturnType<tryAllTypedArrays>} */ var found = false;
+	/** @type {ReturnType<typeof tryAllTypedArrays>} */ var found = false;
 	forEach(
 		// eslint-disable-next-line no-extra-parens
-		/** @type {Record<`\$${TypedArrayName}`, typeof cache>} */ /** @type {any} */ (cache),
-		/** @type {(getter: typeof cache, name: `\$${TypedArrayName}`) => void} */ function (getter, typedArray) {
+		/** @type {Record<`\$${TypedArrayName}`, Getter>} */ /** @type {any} */ (cache),
+		/** @type {(getter: Getter, name: `\$${import('.').TypedArrayName}`) => void} */
+		function (getter, typedArray) {
 			if (!found) {
 				try {
 				// @ts-expect-error TODO: fix
@@ -61974,16 +62081,16 @@ var tryTypedArrays = function tryAllTypedArrays(value) {
 	return found;
 };
 
-/** @type {import('.')} */
+/** @type {(value: object) => false | import('.').TypedArrayName} */
 var trySlices = function tryAllSlices(value) {
-	/** @type {ReturnType<tryAllSlices>} */ var found = false;
+	/** @type {ReturnType<typeof tryAllSlices>} */ var found = false;
 	forEach(
 		// eslint-disable-next-line no-extra-parens
-		/** @type {any} */ (cache),
-		/** @type {(getter: typeof cache, name: `\$${TypedArrayName}`) => void} */ function (getter, name) {
+		/** @type {Record<`\$${TypedArrayName}`, Getter>} */ /** @type {any} */ (cache),
+		/** @type {(getter: typeof cache, name: `\$${import('.').TypedArrayName}`) => void} */ function (getter, name) {
 			if (!found) {
 				try {
-				// @ts-expect-error TODO: fix
+					// @ts-expect-error TODO: fix
 					getter(value);
 					found = $slice(name, 1);
 				} catch (e) { /**/ }
@@ -61997,6 +62104,7 @@ var trySlices = function tryAllSlices(value) {
 module.exports = function whichTypedArray(value) {
 	if (!value || typeof value !== 'object') { return false; }
 	if (!hasToStringTag) {
+		/** @type {string} */
 		var tag = $slice($toString(value), 8, -1);
 		if ($indexOf(typedArrays, tag) > -1) {
 			return tag;
@@ -62444,7 +62552,7 @@ module.exports = __webpack_require__(5349);
 
 /***/ }),
 
-/***/ 14:
+/***/ 576:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(a,b){if(true)!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (b),
@@ -62524,15 +62632,15 @@ __webpack_require__(2529);
 __webpack_require__(2437);
 __webpack_require__(4712);
 var _;
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _interopDefault(ex) {
   return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
 }
@@ -63096,7 +63204,7 @@ var LANGUAGES = [
 },
 // ISO (deprecated)
 [], {
-  // windows
+  // windows                                        
   0x0436: 'af',
   0x4009: 'en-IN',
   0x0487: 'rw',
@@ -63962,7 +64070,6 @@ var CFFDict = /*#__PURE__*/function () {
   return CFFDict;
 }();
 var CFFPointer = /*#__PURE__*/function (_r$Pointer) {
-  _inheritsLoose(CFFPointer, _r$Pointer);
   function CFFPointer(type, options) {
     if (options === void 0) {
       options = {};
@@ -63972,6 +64079,7 @@ var CFFPointer = /*#__PURE__*/function (_r$Pointer) {
     }
     return _r$Pointer.call(this, null, type, options) || this;
   }
+  _inheritsLoose(CFFPointer, _r$Pointer);
   var _proto3 = CFFPointer.prototype;
   _proto3.decode = function decode(stream, parent, operands) {
     this.offsetType = {
@@ -64344,10 +64452,10 @@ var PredefinedOp = /*#__PURE__*/function () {
   return PredefinedOp;
 }();
 var CFFEncodingVersion = /*#__PURE__*/function (_r$Number) {
-  _inheritsLoose(CFFEncodingVersion, _r$Number);
   function CFFEncodingVersion() {
     return _r$Number.call(this, 'UInt8') || this;
   }
+  _inheritsLoose(CFFEncodingVersion, _r$Number);
   var _proto6 = CFFEncodingVersion.prototype;
   _proto6.decode = function decode(stream) {
     return r.uint8.decode(stream) & 0x7f;
@@ -64377,10 +64485,10 @@ var CFFEncoding = new PredefinedOp([StandardEncoding, ExpertEncoding], new CFFPo
 })); // Decodes an array of ranges until the total
 // length is equal to the provided length.
 var RangeArray = /*#__PURE__*/function (_r$Array) {
-  _inheritsLoose(RangeArray, _r$Array);
   function RangeArray() {
     return _r$Array.apply(this, arguments) || this;
   }
+  _inheritsLoose(RangeArray, _r$Array);
   var _proto7 = RangeArray.prototype;
   _proto7.decode = function decode(stream, parent) {
     var length = utils.resolveLength(this.length, stream, parent);
@@ -64595,7 +64703,7 @@ var CFFFont = /*#__PURE__*/function () {
     }
     return this.topDict.FDArray[0].Private;
   };
-  _createClass(CFFFont, [{
+  return _createClass(CFFFont, [{
     key: "postscriptName",
     get: function get() {
       if (this.version < 2) {
@@ -64614,7 +64722,6 @@ var CFFFont = /*#__PURE__*/function () {
       return this.string(this.topDict.FamilyName);
     }
   }]);
-  return CFFFont;
 }();
 var VerticalOrigin = new r.Struct({
   glyphIndex: r.uint16,
@@ -65663,10 +65770,10 @@ var UnboundedArrayAccessor = /*#__PURE__*/function () {
   return UnboundedArrayAccessor;
 }();
 var UnboundedArray = /*#__PURE__*/function (_r$Array2) {
-  _inheritsLoose(UnboundedArray, _r$Array2);
   function UnboundedArray(type) {
     return _r$Array2.call(this, type, 0) || this;
   }
+  _inheritsLoose(UnboundedArray, _r$Array2);
   var _proto13 = UnboundedArray.prototype;
   _proto13.decode = function decode(stream, parent) {
     return new UnboundedArrayAccessor(this.type, stream, parent);
@@ -66856,7 +66963,7 @@ var BBox = /*#__PURE__*/function () {
   _proto18.copy = function copy() {
     return new BBox(this.minX, this.minY, this.maxX, this.maxY);
   };
-  _createClass(BBox, [{
+  return _createClass(BBox, [{
     key: "width",
     get: function get() {
       return this.maxX - this.minX;
@@ -66871,7 +66978,6 @@ var BBox = /*#__PURE__*/function () {
       return this.maxY - this.minY;
     }
   }]);
-  return BBox;
 }(); // Data from http://www.microsoft.com/typography/otspec/scripttags.htm
 // and http://www.unicode.org/Public/UNIDATA/PropertyValueAliases.txt.
 var UNICODE_SCRIPTS = {
@@ -67167,7 +67273,7 @@ var GlyphRun = /*#__PURE__*/function () {
    * The total advance width of the run.
    * @type {number}
    */
-  _createClass(GlyphRun, [{
+  return _createClass(GlyphRun, [{
     key: "advanceWidth",
     get: function get() {
       var width = 0;
@@ -67213,7 +67319,6 @@ var GlyphRun = /*#__PURE__*/function () {
       return bbox;
     }
   }]);
-  return GlyphRun;
 }();
 /**
  * Represents positioning information for a glyph in a GlyphRun.
@@ -68646,10 +68751,10 @@ var STATE_TABLE = [
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-arabic.cc
  */
 var ArabicShaper = /*#__PURE__*/function (_DefaultShaper) {
-  _inheritsLoose(ArabicShaper, _DefaultShaper);
   function ArabicShaper() {
     return _DefaultShaper.apply(this, arguments) || this;
   }
+  _inheritsLoose(ArabicShaper, _DefaultShaper);
   ArabicShaper.planFeatures = function planFeatures(plan) {
     plan.add(['ccmp', 'locl']);
     for (var i = 0; i < FEATURES.length; i++) {
@@ -68772,13 +68877,12 @@ var GlyphIterator = /*#__PURE__*/function () {
     }
     return this.glyphs[this.index];
   };
-  _createClass(GlyphIterator, [{
+  return _createClass(GlyphIterator, [{
     key: "cur",
     get: function get() {
       return this.glyphs[this.index] || null;
     }
   }]);
-  return GlyphIterator;
 }();
 var DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 var OTProcessor = /*#__PURE__*/function () {
@@ -69183,7 +69287,7 @@ var GlyphInfo = /*#__PURE__*/function () {
   _proto26.copy = function copy() {
     return new GlyphInfo(this._font, this.id, this.codePoints, this.features);
   };
-  _createClass(GlyphInfo, [{
+  return _createClass(GlyphInfo, [{
     key: "id",
     get: function get() {
       return this._id;
@@ -69207,7 +69311,6 @@ var GlyphInfo = /*#__PURE__*/function () {
       }
     }
   }]);
-  return GlyphInfo;
 }();
 /**
  * This is a shaper for the Hangul script, used by the Korean language.
@@ -69232,10 +69335,10 @@ var GlyphInfo = /*#__PURE__*/function () {
  *   - http://ktug.org/~nomos/harfbuzz-hangul/hangulshaper.pdf
  */
 var HangulShaper = /*#__PURE__*/function (_DefaultShaper2) {
-  _inheritsLoose(HangulShaper, _DefaultShaper2);
   function HangulShaper() {
     return _DefaultShaper2.apply(this, arguments) || this;
   }
+  _inheritsLoose(HangulShaper, _DefaultShaper2);
   HangulShaper.planFeatures = function planFeatures(plan) {
     plan.add(['ljmo', 'vjmo', 'tjmo'], false);
   };
@@ -69730,10 +69833,10 @@ var stateMachine = new StateMachine(indicMachine);
  * Based on code from Harfbuzz: https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-indic.cc
  */
 var IndicShaper = /*#__PURE__*/function (_DefaultShaper3) {
-  _inheritsLoose(IndicShaper, _DefaultShaper3);
   function IndicShaper() {
     return _DefaultShaper3.apply(this, arguments) || this;
   }
+  _inheritsLoose(IndicShaper, _DefaultShaper3);
   IndicShaper.planFeatures = function planFeatures(plan) {
     plan.addStage(setupSyllables);
     plan.addStage(['locl', 'ccmp']);
@@ -70509,10 +70612,10 @@ var stateMachine$1 = new StateMachine(useData);
  * See https://www.microsoft.com/typography/OpenTypeDev/USE/intro.htm.
  */
 var UniversalShaper = /*#__PURE__*/function (_DefaultShaper4) {
-  _inheritsLoose(UniversalShaper, _DefaultShaper4);
   function UniversalShaper() {
     return _DefaultShaper4.apply(this, arguments) || this;
   }
+  _inheritsLoose(UniversalShaper, _DefaultShaper4);
   UniversalShaper.planFeatures = function planFeatures(plan) {
     plan.addStage(setupSyllables$1); // Default glyph pre-processing group
 
@@ -70825,10 +70928,10 @@ function choose(script) {
   return DefaultShaper;
 }
 var GSUBProcessor = /*#__PURE__*/function (_OTProcessor) {
-  _inheritsLoose(GSUBProcessor, _OTProcessor);
   function GSUBProcessor() {
     return _OTProcessor.apply(this, arguments) || this;
   }
+  _inheritsLoose(GSUBProcessor, _OTProcessor);
   var _proto27 = GSUBProcessor.prototype;
   _proto27.applyLookup = function applyLookup(lookupType, table) {
     var _this7 = this;
@@ -71009,10 +71112,10 @@ var GSUBProcessor = /*#__PURE__*/function (_OTProcessor) {
   return GSUBProcessor;
 }(OTProcessor);
 var GPOSProcessor = /*#__PURE__*/function (_OTProcessor2) {
-  _inheritsLoose(GPOSProcessor, _OTProcessor2);
   function GPOSProcessor() {
     return _OTProcessor2.apply(this, arguments) || this;
   }
+  _inheritsLoose(GPOSProcessor, _OTProcessor2);
   var _proto28 = GPOSProcessor.prototype;
   _proto28.applyPositionValue = function applyPositionValue(sequenceIndex, value) {
     var position = this.positions[this.glyphIterator.peekIndex(sequenceIndex)];
@@ -71687,7 +71790,7 @@ var Path = /*#__PURE__*/function () {
     }
     return this.transform(scaleX, 0, 0, scaleY, 0, 0);
   };
-  _createClass(Path, [{
+  return _createClass(Path, [{
     key: "cbox",
     get: function get() {
       if (!this._cbox) {
@@ -71808,7 +71911,6 @@ var Path = /*#__PURE__*/function () {
       return this._bbox = Object.freeze(bbox);
     }
   }]);
-  return Path;
 }();
 var _loop = function _loop(command) {
   Path.prototype[command] = function () {
@@ -71977,7 +72079,7 @@ var Glyph = (_class$3 = /*#__PURE__*/function () {
     ctx.fill();
     ctx.restore();
   };
-  _createClass(Glyph, [{
+  return _createClass(Glyph, [{
     key: "cbox",
     get: function get() {
       return this._getCBox();
@@ -72026,7 +72128,6 @@ var Glyph = (_class$3 = /*#__PURE__*/function () {
       return this._getName();
     }
   }]);
-  return Glyph;
 }(), (_applyDecoratedDescriptor(_class$3.prototype, "cbox", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "cbox"), _class$3.prototype), _applyDecoratedDescriptor(_class$3.prototype, "bbox", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "bbox"), _class$3.prototype), _applyDecoratedDescriptor(_class$3.prototype, "path", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "path"), _class$3.prototype), _applyDecoratedDescriptor(_class$3.prototype, "advanceWidth", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "advanceWidth"), _class$3.prototype), _applyDecoratedDescriptor(_class$3.prototype, "advanceHeight", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "advanceHeight"), _class$3.prototype), _applyDecoratedDescriptor(_class$3.prototype, "name", [cache], Object.getOwnPropertyDescriptor(_class$3.prototype, "name"), _class$3.prototype)), _class$3);
 var GlyfHeader = new r.Struct({
   numberOfContours: r.int16,
@@ -72081,10 +72182,10 @@ var Component = function Component(glyphID, dx, dy) {
  * Represents a TrueType glyph.
  */
 var TTFGlyph = /*#__PURE__*/function (_Glyph) {
-  _inheritsLoose(TTFGlyph, _Glyph);
   function TTFGlyph() {
     return _Glyph.apply(this, arguments) || this;
   }
+  _inheritsLoose(TTFGlyph, _Glyph);
   var _proto34 = TTFGlyph.prototype;
   // Parses just the glyph header and returns the bounding box
   _proto34._getCBox = function _getCBox(internal) {
@@ -72357,10 +72458,10 @@ var TTFGlyph = /*#__PURE__*/function (_Glyph) {
  * Represents an OpenType PostScript glyph, in the Compact Font Format.
  */
 var CFFGlyph = /*#__PURE__*/function (_Glyph2) {
-  _inheritsLoose(CFFGlyph, _Glyph2);
   function CFFGlyph() {
     return _Glyph2.apply(this, arguments) || this;
   }
+  _inheritsLoose(CFFGlyph, _Glyph2);
   var _proto35 = CFFGlyph.prototype;
   _proto35._getName = function _getName() {
     if (this._font.CFF2) {
@@ -72927,10 +73028,10 @@ var SBIXImage = new r.Struct({
  * Represents a color (e.g. emoji) glyph in Apple's SBIX format.
  */
 var SBIXGlyph = /*#__PURE__*/function (_TTFGlyph) {
-  _inheritsLoose(SBIXGlyph, _TTFGlyph);
   function SBIXGlyph() {
     return _TTFGlyph.apply(this, arguments) || this;
   }
+  _inheritsLoose(SBIXGlyph, _TTFGlyph);
   var _proto36 = SBIXGlyph.prototype;
   /**
    * Returns an object representing a glyph image at the given point size.
@@ -72984,10 +73085,10 @@ var COLRLayer = function COLRLayer(glyph, color) {
  * of which  is another vector glyph.
  */
 var COLRGlyph = /*#__PURE__*/function (_Glyph3) {
-  _inheritsLoose(COLRGlyph, _Glyph3);
   function COLRGlyph() {
     return _Glyph3.apply(this, arguments) || this;
   }
+  _inheritsLoose(COLRGlyph, _Glyph3);
   var _proto37 = COLRGlyph.prototype;
   _proto37._getBBox = function _getBBox() {
     var bbox = new BBox();
@@ -73014,7 +73115,7 @@ var COLRGlyph = /*#__PURE__*/function (_Glyph3) {
     }
     return;
   };
-  _createClass(COLRGlyph, [{
+  return _createClass(COLRGlyph, [{
     key: "layers",
     get: function get() {
       var cpal = this._font.CPAL;
@@ -73056,7 +73157,6 @@ var COLRGlyph = /*#__PURE__*/function (_Glyph3) {
       return layers;
     }
   }]);
-  return COLRGlyph;
 }(Glyph);
 var TUPLES_SHARE_POINT_NUMBERS = 0x8000;
 var TUPLE_COUNT_MASK = 0x0fff;
@@ -73637,13 +73737,13 @@ var TTFGlyphEncoder = /*#__PURE__*/function () {
   return TTFGlyphEncoder;
 }();
 var TTFSubset = /*#__PURE__*/function (_Subset) {
-  _inheritsLoose(TTFSubset, _Subset);
   function TTFSubset(font) {
     var _this12;
     _this12 = _Subset.call(this, font) || this;
     _this12.glyphEncoder = new TTFGlyphEncoder();
     return _this12;
   }
+  _inheritsLoose(TTFSubset, _Subset);
   var _proto41 = TTFSubset.prototype;
   _proto41._addGlyph = function _addGlyph(gid) {
     var glyph = this.font.getGlyph(gid);
@@ -73747,7 +73847,6 @@ var TTFSubset = /*#__PURE__*/function (_Subset) {
   return TTFSubset;
 }(Subset);
 var CFFSubset = /*#__PURE__*/function (_Subset2) {
-  _inheritsLoose(CFFSubset, _Subset2);
   function CFFSubset(font) {
     var _this13;
     _this13 = _Subset2.call(this, font) || this;
@@ -73757,6 +73856,7 @@ var CFFSubset = /*#__PURE__*/function (_Subset2) {
     }
     return _this13;
   }
+  _inheritsLoose(CFFSubset, _Subset2);
   var _proto42 = CFFSubset.prototype;
   _proto42.subsetCharstrings = function subsetCharstrings() {
     this.charstrings = [];
@@ -73909,10 +74009,6 @@ var _class$4;
  */
 
 var TTFFont = (_class$4 = /*#__PURE__*/function () {
-  TTFFont.probe = function probe(buffer) {
-    var format = buffer.toString('ascii', 0, 4);
-    return format === 'true' || format === 'OTTO' || format === String.fromCharCode(0, 1, 0, 0);
-  };
   function TTFFont(stream, variationCoords) {
     if (variationCoords === void 0) {
       variationCoords = null;
@@ -73934,6 +74030,10 @@ var TTFFont = (_class$4 = /*#__PURE__*/function () {
       }
     }
   }
+  TTFFont.probe = function probe(buffer) {
+    var format = buffer.toString('ascii', 0, 4);
+    return format === 'true' || format === 'OTTO' || format === String.fromCharCode(0, 1, 0, 0);
+  };
   var _proto43 = TTFFont.prototype;
   _proto43.setDefaultLanguage = function setDefaultLanguage(lang) {
     if (lang === void 0) {
@@ -74181,7 +74281,7 @@ var TTFFont = (_class$4 = /*#__PURE__*/function () {
   _proto43.getFont = function getFont(name) {
     return this.getVariation(name);
   };
-  _createClass(TTFFont, [{
+  return _createClass(TTFFont, [{
     key: "postscriptName",
     get: function get() {
       return this.getName('postscriptName');
@@ -74420,7 +74520,6 @@ var TTFFont = (_class$4 = /*#__PURE__*/function () {
       return new GlyphVariationProcessor(this, variationCoords);
     }
   }]);
-  return TTFFont;
 }(), (_applyDecoratedDescriptor(_class$4.prototype, "bbox", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "bbox"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "_cmapProcessor", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "_cmapProcessor"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "characterSet", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "characterSet"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "_layoutEngine", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "_layoutEngine"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "variationAxes", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "variationAxes"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "namedVariations", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "namedVariations"), _class$4.prototype), _applyDecoratedDescriptor(_class$4.prototype, "_variationProcessor", [cache], Object.getOwnPropertyDescriptor(_class$4.prototype, "_variationProcessor"), _class$4.prototype)), _class$4);
 var WOFFDirectoryEntry = new r.Struct({
   tag: new r.String(4),
@@ -74457,10 +74556,10 @@ WOFFDirectory.process = function () {
   this.tables = tables;
 };
 var WOFFFont = /*#__PURE__*/function (_TTFFont) {
-  _inheritsLoose(WOFFFont, _TTFFont);
   function WOFFFont() {
     return _TTFFont.apply(this, arguments) || this;
   }
+  _inheritsLoose(WOFFFont, _TTFFont);
   WOFFFont.probe = function probe(buffer) {
     return buffer.toString('ascii', 0, 4) === 'wOFF';
   };
@@ -74492,10 +74591,10 @@ var WOFFFont = /*#__PURE__*/function (_TTFFont) {
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.
  */
 var WOFF2Glyph = /*#__PURE__*/function (_TTFGlyph2) {
-  _inheritsLoose(WOFF2Glyph, _TTFGlyph2);
   function WOFF2Glyph() {
     return _TTFGlyph2.apply(this, arguments) || this;
   }
+  _inheritsLoose(WOFF2Glyph, _TTFGlyph2);
   var _proto45 = WOFF2Glyph.prototype;
   _proto45._decode = function _decode() {
     // We have to decode in advance (in WOFF2Font), so just return the pre-decoded data.
@@ -74577,10 +74676,10 @@ WOFF2Directory.process = function () {
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
 var WOFF2Font = /*#__PURE__*/function (_TTFFont2) {
-  _inheritsLoose(WOFF2Font, _TTFFont2);
   function WOFF2Font() {
     return _TTFFont2.apply(this, arguments) || this;
   }
+  _inheritsLoose(WOFF2Font, _TTFFont2);
   WOFF2Font.probe = function probe(buffer) {
     return buffer.toString('ascii', 0, 4) === 'wOF2';
   };
@@ -74771,9 +74870,6 @@ var TTCHeader = new r.VersionedStruct(r.uint32, {
   }
 });
 var TrueTypeCollection = /*#__PURE__*/function () {
-  TrueTypeCollection.probe = function probe(buffer) {
-    return buffer.toString('ascii', 0, 4) === 'ttcf';
-  };
   function TrueTypeCollection(stream) {
     this.stream = stream;
     if (stream.readString(4) !== 'ttcf') {
@@ -74781,6 +74877,9 @@ var TrueTypeCollection = /*#__PURE__*/function () {
     }
     this.header = TTCHeader.decode(stream);
   }
+  TrueTypeCollection.probe = function probe(buffer) {
+    return buffer.toString('ascii', 0, 4) === 'ttcf';
+  };
   var _proto48 = TrueTypeCollection.prototype;
   _proto48.getFont = function getFont(name) {
     for (var _iterator79 = _createForOfIteratorHelperLoose(this.header.offsets), _step79; !(_step79 = _iterator79()).done;) {
@@ -74794,7 +74893,7 @@ var TrueTypeCollection = /*#__PURE__*/function () {
     }
     return null;
   };
-  _createClass(TrueTypeCollection, [{
+  return _createClass(TrueTypeCollection, [{
     key: "fonts",
     get: function get() {
       var fonts = [];
@@ -74807,7 +74906,6 @@ var TrueTypeCollection = /*#__PURE__*/function () {
       return fonts;
     }
   }]);
-  return TrueTypeCollection;
 }();
 var DFontName = new r.String(r.uint8);
 var DFontData = new r.Struct({
@@ -74848,28 +74946,13 @@ var DFontHeader = new r.Struct({
   mapLength: r.uint32
 });
 var DFont = /*#__PURE__*/function () {
-  DFont.probe = function probe(buffer) {
-    var stream = new r.DecodeStream(buffer);
-    try {
-      var header = DFontHeader.decode(stream);
-    } catch (e) {
-      return false;
-    }
-    for (var _iterator81 = _createForOfIteratorHelperLoose(header.map.typeList.types), _step81; !(_step81 = _iterator81()).done;) {
-      var type = _step81.value;
-      if (type.name === 'sfnt') {
-        return true;
-      }
-    }
-    return false;
-  };
   function DFont(stream) {
     this.stream = stream;
     this.header = DFontHeader.decode(this.stream);
-    for (var _iterator82 = _createForOfIteratorHelperLoose(this.header.map.typeList.types), _step82; !(_step82 = _iterator82()).done;) {
-      var type = _step82.value;
-      for (var _iterator83 = _createForOfIteratorHelperLoose(type.refList), _step83; !(_step83 = _iterator83()).done;) {
-        var ref = _step83.value;
+    for (var _iterator81 = _createForOfIteratorHelperLoose(this.header.map.typeList.types), _step81; !(_step81 = _iterator81()).done;) {
+      var type = _step81.value;
+      for (var _iterator82 = _createForOfIteratorHelperLoose(type.refList), _step82; !(_step82 = _iterator82()).done;) {
+        var ref = _step82.value;
         if (ref.nameOffset >= 0) {
           this.stream.pos = ref.nameOffset + this.header.map.nameListOffset;
           ref.name = DFontName.decode(this.stream);
@@ -74882,6 +74965,21 @@ var DFont = /*#__PURE__*/function () {
       }
     }
   }
+  DFont.probe = function probe(buffer) {
+    var stream = new r.DecodeStream(buffer);
+    try {
+      var header = DFontHeader.decode(stream);
+    } catch (e) {
+      return false;
+    }
+    for (var _iterator83 = _createForOfIteratorHelperLoose(header.map.typeList.types), _step83; !(_step83 = _iterator83()).done;) {
+      var type = _step83.value;
+      if (type.name === 'sfnt') {
+        return true;
+      }
+    }
+    return false;
+  };
   var _proto49 = DFont.prototype;
   _proto49.getFont = function getFont(name) {
     if (!this.sfnt) {
@@ -74898,7 +74996,7 @@ var DFont = /*#__PURE__*/function () {
     }
     return null;
   };
-  _createClass(DFont, [{
+  return _createClass(DFont, [{
     key: "fonts",
     get: function get() {
       var fonts = [];
@@ -74911,7 +75009,6 @@ var DFont = /*#__PURE__*/function () {
       return fonts;
     }
   }]);
-  return DFont;
 }();
 fontkit.registerFormat(TTFFont);
 fontkit.registerFormat(WOFFFont);
@@ -75405,7 +75502,7 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -75419,17 +75516,17 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+/******/ 	
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	!function() {
@@ -75442,7 +75539,7 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 			return getter;
 /******/ 		};
 /******/ 	}();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	!function() {
 /******/ 		// define getter functions for harmony exports
@@ -75454,7 +75551,7 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 			}
 /******/ 		};
 /******/ 	}();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/global */
 /******/ 	!function() {
 /******/ 		__webpack_require__.g = (function() {
@@ -75466,12 +75563,12 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 			}
 /******/ 		})();
 /******/ 	}();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	!function() {
 /******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
 /******/ 	}();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	!function() {
 /******/ 		__webpack_require__.nmd = function(module) {
@@ -75480,14 +75577,14 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 			return module;
 /******/ 		};
 /******/ 	}();
-/******/
+/******/ 	
 /************************************************************************/
-/******/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __webpack_require__(9921);
-/******/
+/******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
